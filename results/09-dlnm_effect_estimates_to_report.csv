@@ -1,0 +1,9 @@
+mobility,lag,relative_death_rate,lower_95,upper_95,model
+-50,15,1.077,1.029,1.127,Main model
+10,15,0.99,0.969,1.011,Main model
+-50,30,0.875,0.818,0.936,Main model
+10,30,1.048,1.024,1.072,Main model
+-50,15,1.079,1.048,1.112,Excluding NYC
+10,15,0.983,0.969,0.997,Excluding NYC
+-50,30,0.972,0.939,1.006,Excluding NYC
+10,30,1.01,0.995,1.026,Excluding NYC

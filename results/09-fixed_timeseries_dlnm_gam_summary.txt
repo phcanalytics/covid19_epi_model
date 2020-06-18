@@ -1,0 +1,52 @@
+
+Family: quasipoisson 
+Link function: log 
+
+Formula:
+daily_deaths ~ fix_ts_cbgam + s(time_since_first_death) + s(time_since_first_death, 
+    metro_state_county, bs = c("fs")) + s(PC1, bs = "cr", k = 5) + 
+    s(PC2, bs = "cr", k = 5) + s(PC3, bs = "cr", k = 5) + s(PC4, 
+    bs = "cr", k = 5) + offset(log(population_v051))
+
+Parametric coefficients:
+                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)       -12.11114    0.39466 -30.687  < 2e-16 ***
+fix_ts_cbgamv1.l1  -0.13247    0.02605  -5.086 4.32e-07 ***
+fix_ts_cbgamv1.l2  -0.06008    0.01498  -4.011 6.46e-05 ***
+fix_ts_cbgamv1.l3   0.01420    0.01113   1.276    0.202    
+fix_ts_cbgamv1.l4   0.09052    0.01800   5.029 5.78e-07 ***
+fix_ts_cbgamv2.l1  -0.17046    0.03351  -5.086 4.31e-07 ***
+fix_ts_cbgamv2.l2  -0.07730    0.01927  -4.012 6.44e-05 ***
+fix_ts_cbgamv2.l3   0.01827    0.01432   1.276    0.202    
+fix_ts_cbgamv2.l4   0.11647    0.02315   5.030 5.74e-07 ***
+fix_ts_cbgamv3.l1  -0.25857    0.05083  -5.087 4.30e-07 ***
+fix_ts_cbgamv3.l2  -0.11725    0.02922  -4.013 6.41e-05 ***
+fix_ts_cbgamv3.l3   0.02771    0.02170   1.277    0.202    
+fix_ts_cbgamv3.l4   0.17668    0.03511   5.032 5.68e-07 ***
+fix_ts_cbgamv4.l1  -0.50244    0.09878  -5.087 4.30e-07 ***
+fix_ts_cbgamv4.l2  -0.22781    0.05679  -4.011 6.46e-05 ***
+fix_ts_cbgamv4.l3   0.05385    0.04218   1.276    0.202    
+fix_ts_cbgamv4.l4   0.34330    0.06822   5.032 5.68e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+                                                edf  Ref.df        F  p-value
+s(time_since_first_death)                     6.823   7.784    7.527 5.09e-09
+s(time_since_first_death,metro_state_county) 39.829 234.000 3697.123 7.36e-12
+s(PC1)                                        1.119   1.132   31.804 3.73e-09
+s(PC2)                                        2.397   2.447    2.544   0.0538
+s(PC3)                                        1.000   1.000    2.501   0.1139
+s(PC4)                                        1.349   1.377    0.764   0.3474
+                                                
+s(time_since_first_death)                    ***
+s(time_since_first_death,metro_state_county) ***
+s(PC1)                                       ***
+s(PC2)                                       .  
+s(PC3)                                          
+s(PC4)                                          
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.884   Deviance explained = 91.3%
+-REML = 1510.9  Scale est. = 4.4896    n = 1128

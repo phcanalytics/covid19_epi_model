@@ -1,0 +1,27 @@
+CROSSBASIS FUNCTIONS
+observations: 2053 
+groups: 24 
+range: -81 to 87 
+lag period: 0 30 
+total df:  16 
+
+BASIS FOR VAR:
+fun: cr 
+df: 4 
+knots: -81 -36.64612 -24.5 5.437063 87 
+intercept: FALSE 
+fx: FALSE 
+S: 0.001250804 -0.00137788 0.0002816145 -1.172464e-05 -0.00137788 0.001657681 -0.0004293519 ... 
+
+BASIS FOR LAG:
+fun: cr 
+df: 4 
+knots: 0 10 20 30 
+intercept: TRUE 
+fx: FALSE 
+S: 0.0016 -0.0036 0.0024 -4e-04 -0.0036 0.0096 -0.0084 ... 
+
+NULL
+[1] "#######################################################################"
+[1] "Dimensions of non-missing lagged matrix :"
+[1] 1333   16

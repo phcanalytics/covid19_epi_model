@@ -1,0 +1,37 @@
+
+Family: quasipoisson 
+Link function: log 
+
+Formula:
+daily_deaths ~ s(time_since_first_death) + s(time_since_first_death, 
+    metro_state_county, bs = c("fs")) + s(PC1, bs = "cr", k = 5) + 
+    s(PC2, bs = "cr", k = 5) + s(PC3, bs = "cr", k = 5) + s(PC4, 
+    bs = "cr", k = 5) + s(retail_rec_wk_lag0, bs = "cr", k = 5) + 
+    s(retail_rec_wk_lag1, bs = "cr", k = 5) + s(retail_rec_wk_lag2, 
+    bs = "cr", k = 5) + s(retail_rec_wk_lag3, bs = "cr", k = 5) + 
+    s(retail_rec_wk_lag4, bs = "cr", k = 5) + offset(log(population_v051))
+
+Parametric coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -12.4389     0.1694  -73.44   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+                                                edf  Ref.df      F  p-value    
+s(time_since_first_death)                     6.784   7.740 12.526  < 2e-16 ***
+s(time_since_first_death,metro_state_county) 43.448 234.000  2.641  < 2e-16 ***
+s(PC1)                                        1.474   1.510 10.792 0.000148 ***
+s(PC2)                                        2.277   2.320  2.847 0.046873 *  
+s(PC3)                                        1.000   1.000  2.846 0.091851 .  
+s(PC4)                                        1.214   1.229  0.059 0.867740    
+s(retail_rec_wk_lag0)                         1.000   1.001  8.537 0.003534 ** 
+s(retail_rec_wk_lag1)                         1.001   1.001  0.265 0.607557    
+s(retail_rec_wk_lag2)                         2.061   2.536  1.273 0.265521    
+s(retail_rec_wk_lag3)                         1.000   1.001  4.723 0.029900 *  
+s(retail_rec_wk_lag4)                         1.000   1.001  0.354 0.552191    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.874   Deviance explained = 89.7%
+-REML = 1831.1  Scale est. = 4.6982    n = 1333

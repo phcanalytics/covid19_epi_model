@@ -1,0 +1,5 @@
+# A tibble: 2 x 3
+  metro_area      min   max
+  <chr>         <dbl> <dbl>
+1 New Orleans   1.95  6.78 
+2 San Francisco 0.192 0.344
