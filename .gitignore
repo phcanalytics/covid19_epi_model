@@ -7,7 +7,8 @@
 Rplots.pdf
 
 # Ignore reference paper pdfs; avoiding any copywrite
-references/*.pdf 
+references/*.pdf
+references/methods/ 
 
 # Ignore data we are allowed to use but don't have permission to host
 nyt-us-counties.csv
