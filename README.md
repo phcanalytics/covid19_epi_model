@@ -10,6 +10,8 @@ and/or provided for download in agreement with the data licenses pertaining to e
 
 **License:** This project is licensed under the terms of the MIT license.
 
+**Cite:** McGough et al. 2020 pre-print at: <medrxiv URL tba>. 
+
 ### Project Data Scientists
 
 - Sarah McGough

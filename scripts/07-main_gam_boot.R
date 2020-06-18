@@ -63,6 +63,15 @@ dlnm.main.gam <- gam(
 # Before saving final, add same results from main GAM to list for plots
 original <- plot(dlnm.main.gam, pages=1, residuals=TRUE, seWithMean = TRUE)
 
+# Check autocorrelation
+pacf(residuals(dlnm.main.gam, type="scaled.pearson"))
+pacf(residuals(dlnm.main.gam)) # basically the same
+
+# png partial autocorrelation (PACF) plots
+png("./results/07-pacf_mainmod.png",width=10, height=7, units="in", res=300)
+pacf(residuals(dlnm.main.gam, type="scaled.pearson"))
+dev.off()
+
 # County-specific principle components 1 estimates
 # get state abbreviations
 states <- data.frame(datasets::state.name, datasets::state.abb) 
@@ -86,7 +95,7 @@ dlnm_pred_main <- crosspred(
   by=1,
   bylag=1,
   ci.level = 0.95,
-  cen=0,
+  cen=0
 )
 
 
