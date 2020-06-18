@@ -3,8 +3,11 @@
 # ignore big data lists for bootstraps
 *.RData
 
-# ignore Rplot.pdf
+# Ignore Rplot.pdf
 Rplots.pdf
+
+# Ignore reference paper pdfs; avoiding any copywrite
+references/*.pdf 
 
 # Ignore data we are allowed to use but don't have permission to host
 nyt-us-counties.csv
