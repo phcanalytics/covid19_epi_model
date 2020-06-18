@@ -105,6 +105,7 @@ pc1_plot <- ggplot() +
     size=3.5, direction="both", force=10, segment.size=0.25,
     segment.linetype="dashed"
   ) +
+  ggtitle('A') +
   theme_classic() +
   ylab("Relative Daily Mortality Rate (RR)") +
   xlab("Health and Wealth") +
