@@ -211,7 +211,7 @@ ggsave(
   filename = './results/04-top10_pc1.pdf',
   plot = top10_pc1,
   width = 8, 
-  height = 6,
+  height = 12,
   units = 'in'
 )
 
