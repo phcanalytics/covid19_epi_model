@@ -77,7 +77,8 @@ hypertension, and chronic obstructive pulmonary disease. Link to
 
 `references`: Contains manuscripts and references used for the project.
 - `methods` Folder for methods mostly around generalized additive models (GAMs)
-and distributed lag models.
+and distributed lag models. Note we do not include these in the public repo to avoid copywrite
+issues, but many of the references are publically available. 
 
 - `data_dictionary` Contains data dictionary for Robert Wood Johnson (RWJ)
 variables. We have also added our own key for names used in analysis and their
@@ -138,7 +139,3 @@ study county fips, and RWJ variables to evaluate in principle components analysi
 - `results/00-session_info.txt`: Summary of time it takes to run from start to finish
 and R session info (R version and packages used).
 
-### Improvements
-
-Consider drake package to make pipelines for data processing steps that need
-daily updates.
