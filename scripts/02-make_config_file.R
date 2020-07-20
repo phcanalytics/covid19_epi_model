@@ -13,9 +13,9 @@ library(yaml)
 
 # Number of bootsraps to run
 
-# setting end date to '2020-05-13' for manuscript
+# setting end date to '2020-07-17' for manuscript
 
-end_date <- '2020-05-13'
+end_date <- '2020-07-10'
 ####
 # Commented out code to use last date of google mobility as end date for paper 
 # taking last date mobility is available
