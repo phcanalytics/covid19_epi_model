@@ -174,6 +174,7 @@ pc1_plot <- ggplot() +
   theme(axis.text = element_text(size=12), axis.title = element_text(size=14)) +
   theme(legend.text = element_text(size=12), legend.title=element_text(size=14))
 
+pc1_plot
 # save plot
 ggsave(
   filename = './results/09-dlmn_gam_pc1_plot.pdf',
@@ -957,4 +958,3 @@ pdf(
 )
 plot(simplelag.gam, pages = 1, seWithMean = TRUE)
 dev.off()
-
