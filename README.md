@@ -8,6 +8,8 @@ spatial units of interest are at the US county-level.
 This repository contains all scripts used to produce this analysis. Data are linked 
 and/or provided for download in agreement with the data licenses pertaining to each source.
 
+**Status:** Refreshing data through July, adding counties in Southern US.
+
 **License:** This project is licensed under the terms of the MIT license.
 
 **Cite:** [McGough et al. 2020 pre-print](https://www.medrxiv.org/content/10.1101/2020.06.18.20134122v1). 
