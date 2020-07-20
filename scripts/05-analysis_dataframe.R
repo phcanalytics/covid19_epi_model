@@ -44,9 +44,34 @@ analysis_df <- master_ts %>%
     )
   ) 
 
-
 # save study df
 write_csv(analysis_df, './data/05-analysis_df.csv')
+
+
+# Saving time series plot by county ---------------------------------------
+
+p_ts_county <- analysis_df %>%
+  filter(time_since_first_death>=0) %>%
+  ggplot(aes(time_since_first_death, daily_deaths_rollavg7)) +
+  geom_line(aes(col=metro_area)) +
+  scale_color_manual("Metro area", values=wes_palette("Darjeeling1",n=13,type="continuous")) +
+  facet_wrap(~metro_state_county, scales="free") +
+  theme_classic() +
+  xlab("Days since first death") +
+  ylab("Daily deaths (Rolling 7-day average)") +
+  theme(strip.text = element_text(size=7))
+
+# png version of figure 2 for paper; 300 dpi for publication quality
+png("./results/05-time_series_county.png",width=15, height=8, units="in", res=300)
+p_ts_county
+dev.off()
+
+# saving a pdf version as well
+pdf("./results/05-time_series_county.pdf",width=15, height=8)
+p_ts_county
+dev.off()
+
+
 
 # Storing summary information --------------------------------------------------
 sink("./results/05-analysis_df_meta_info.txt")
