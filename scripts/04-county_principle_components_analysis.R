@@ -75,7 +75,7 @@ pca_rwj_nyt <- prcomp(rwj_nyt, scale = TRUE) # scale == true for standarizing
 # join metro county state names for plotting
 pca_df <- data.frame(pca_rwj_nyt$x) %>% 
   rownames_to_column(var = 'fips') %>% 
-  left_join(state_county_fips, by = 'fips') %>% 
+  left_join(state_county_fips, by = 'fips') %>%
   select(fips, state:metro_state_county, PC1:PC24) 
 
 # Save PC dataframe for study counties
