@@ -143,6 +143,8 @@ pc1_plot <- ggplot() +
            left_join(states, by=c("state"="state.name")) %>%
            mutate(county_state=paste(county,state.abb,sep=", ")),
     aes(x = PC1, y = exp(predicted), shape=metro_area),size=2) +
+  # custom shapes
+  scale_shape_manual(values=1:nlevels(factor(complete_data$metro_area))) +
   # pc1 fit
   geom_line(
     data = data.frame(cbind(x=save[[3]]$x, y=exp(save[[3]]$fit))),
@@ -151,8 +153,8 @@ pc1_plot <- ggplot() +
   geom_ribbon(
     data = data.frame(
       cbind(x = save[[3]]$x, y = exp(save[[3]]$fit), 
-            lower95 = exp(save[[3]]$fit - 2*save[[3]]$se),
-            upper95 = exp(save[[3]]$fit + 2*save[[3]]$se)
+            lower95 = exp(save[[3]]$fit - save[[3]]$se),
+            upper95 = exp(save[[3]]$fit + save[[3]]$se)
             )
       ),
     aes(x = x, ymin = V3, ymax = V4), fill='lightblue', alpha = 0.5) +
@@ -170,7 +172,7 @@ pc1_plot <- ggplot() +
   theme_classic() +
   ylab("Relative Daily Mortality Rate (RR)") +
   xlab("Health and Wealth") +
-  coord_cartesian(ylim=c(0,8)) +
+  #coord_cartesian(ylim=c(0,8)) +
   theme(axis.text = element_text(size=12), axis.title = element_text(size=14)) +
   theme(legend.text = element_text(size=12), legend.title=element_text(size=14))
 
@@ -197,6 +199,174 @@ city_est <- cbind(complete_data, predicted=save[[3]]$p.resid) %>%
 print(city_est)
 
 sink()
+
+
+# PC2 plots ---------------------------------------------------------------
+# principle components 1 plot 
+pc2_plot <- ggplot() +
+  geom_point(
+    # join in residuals with complete data
+    data = cbind(complete_data, predicted=save[[4]]$p.resid) %>% 
+      #mutate(county_state=paste(county,state,sep=", ")) %>%
+      group_by(metro_state_county, metro_area, county, state) %>% 
+      summarise(PC2=mean(PC2),predicted=mean(predicted)) %>%
+      left_join(states, by=c("state"="state.name")) %>%
+      mutate(county_state=paste(county,state.abb,sep=", ")),
+    aes(x = PC2, y = exp(predicted), shape=metro_area),size=2) +
+  # custom shapes
+  scale_shape_manual(values=1:nlevels(factor(complete_data$metro_area))) +
+  # PC2 fit
+  geom_line(
+    data = data.frame(cbind(x=save[[4]]$x, y=exp(save[[4]]$fit))),
+    aes(x = x , y = V2),col="darkblue") +
+  # 95% CI around estimate
+  geom_ribbon(
+    data = data.frame(
+      cbind(x = save[[4]]$x, y = exp(save[[4]]$fit), 
+            lower95 = exp(save[[4]]$fit - save[[4]]$se),
+            upper95 = exp(save[[4]]$fit + save[[4]]$se)
+      )
+    ),
+    aes(x = x, ymin = V3, ymax = V4), fill='lightblue', alpha = 0.5) +
+  # labels
+  geom_text_repel(
+    data = cbind(complete_data, predicted=save[[4]]$p.resid) %>% 
+      group_by(metro_state_county, metro_area, county, state) %>% 
+      summarise(PC2=mean(PC2),predicted=mean(predicted)) %>%
+      left_join(data.frame(state.name,state.abb), by=c("state"="state.name")) %>%
+      mutate(county_state=paste(county,state.abb,sep=", ")),
+    aes(x = PC2, y = exp(predicted), label = county_state), 
+    size=3.75, direction="both", force=40, segment.size=0.25, 
+    segment.linetype="dashed"
+  ) +
+  theme_classic() +
+  ylab("Relative Daily Mortality Rate (RR)") +
+  xlab("PC2") +
+  #coord_cartesian(ylim=c(0,8)) +
+  theme(axis.text = element_text(size=12), axis.title = element_text(size=14)) +
+  theme(legend.text = element_text(size=12), legend.title=element_text(size=14))
+
+pc2_plot
+# save plot
+ggsave(
+  filename = './results/09-dlmn_gam_pc2_plot.pdf',
+  plot = pc2_plot,
+  height = 8,
+  width = 16,
+  unit = 'in'
+)
+
+
+# PC3 plots ---------------------------------------------------------------
+# principle components 3 plot 
+pc3_plot <- ggplot() +
+  geom_point(
+    # join in residuals with complete data
+    data = cbind(complete_data, predicted=save[[5]]$p.resid) %>% 
+      #mutate(county_state=paste(county,state,sep=", ")) %>%
+      group_by(metro_state_county, metro_area, county, state) %>% 
+      summarise(PC3=mean(PC3),predicted=mean(predicted)) %>%
+      left_join(states, by=c("state"="state.name")) %>%
+      mutate(county_state=paste(county,state.abb,sep=", ")),
+    aes(x = PC3, y = exp(predicted), shape=metro_area),size=2) +
+  # custom shapes
+  scale_shape_manual(values=1:nlevels(complete_data$metro_area)) +
+  # PC3 fit
+  geom_line(
+    data = data.frame(cbind(x=save[[5]]$x, y=exp(save[[5]]$fit))),
+    aes(x = x , y = V2),col="darkblue") +
+  # 95% CI around estimate
+  geom_ribbon(
+    data = data.frame(
+      cbind(x = save[[5]]$x, y = exp(save[[5]]$fit), 
+            lower95 = exp(save[[5]]$fit - save[[5]]$se),
+            upper95 = exp(save[[5]]$fit + save[[5]]$se)
+      )
+    ),
+    aes(x = x, ymin = V3, ymax = V4), fill='lightblue', alpha = 0.5) +
+  # labels
+  geom_text_repel(
+    data = cbind(complete_data, predicted=save[[5]]$p.resid) %>% 
+      group_by(metro_state_county, metro_area, county, state) %>% 
+      summarise(PC3=mean(PC3),predicted=mean(predicted)) %>%
+      left_join(data.frame(state.name,state.abb), by=c("state"="state.name")) %>%
+      mutate(county_state=paste(county,state.abb,sep=", ")),
+    aes(x = PC3, y = exp(predicted), label = county_state), 
+    size=3.75, direction="both", force=40, segment.size=0.25, 
+    segment.linetype="dashed"
+  ) +
+  theme_classic() +
+  ylab("Relative Daily Mortality Rate (RR)") +
+  xlab("PC3") +
+  #coord_cartesian(ylim=c(0,8)) +
+  theme(axis.text = element_text(size=12), axis.title = element_text(size=14)) +
+  theme(legend.text = element_text(size=12), legend.title=element_text(size=14))
+
+pc3_plot
+# save plot
+ggsave(
+  filename = './results/09-dlmn_gam_pc3_plot.pdf',
+  plot = pc3_plot,
+  height = 8,
+  width = 16,
+  unit = 'in'
+)
+
+# PC4 plots ---------------------------------------------------------------
+# principle components 4 plot 
+pc4_plot <- ggplot() +
+  geom_point(
+    # join in residuals with complete data
+    data = cbind(complete_data, predicted=save[[6]]$p.resid) %>% 
+      #mutate(county_state=paste(county,state,sep=", ")) %>%
+      group_by(metro_state_county, metro_area, county, state) %>% 
+      summarise(PC4=mean(PC4),predicted=mean(predicted)) %>%
+      left_join(states, by=c("state"="state.name")) %>%
+      mutate(county_state=paste(county,state.abb,sep=", ")),
+    aes(x = PC4, y = exp(predicted), shape=metro_area),size=2) +
+  # custom shapes
+  scale_shape_manual(values=1:nlevels(factor(complete_data$metro_area))) +
+  # PC4 fit
+  geom_line(
+    data = data.frame(cbind(x=save[[6]]$x, y=exp(save[[6]]$fit))),
+    aes(x = x , y = V2),col="darkblue") +
+  # 95% CI around estimate
+  geom_ribbon(
+    data = data.frame(
+      cbind(x = save[[6]]$x, y = exp(save[[6]]$fit), 
+            lower95 = exp(save[[6]]$fit - save[[6]]$se),
+            upper95 = exp(save[[6]]$fit + save[[6]]$se)
+      )
+    ),
+    aes(x = x, ymin = V3, ymax = V4), fill='lightblue', alpha = 0.5) +
+  # labels
+  geom_text_repel(
+    data = cbind(complete_data, predicted=save[[6]]$p.resid) %>% 
+      group_by(metro_state_county, metro_area, county, state) %>% 
+      summarise(PC4=mean(PC4),predicted=mean(predicted)) %>%
+      left_join(data.frame(state.name,state.abb), by=c("state"="state.name")) %>%
+      mutate(county_state=paste(county,state.abb,sep=", ")),
+    aes(x = PC4, y = exp(predicted), label = county_state), 
+    size=3.75, direction="both", force=40, segment.size=0.25, 
+    segment.linetype="dashed"
+  ) +
+  theme_classic() +
+  ylab("Relative Daily Mortality Rate (RR)") +
+  xlab("PC4") +
+  #coord_cartesian(ylim=c(0,8)) +
+  theme(axis.text = element_text(size=12), axis.title = element_text(size=14)) +
+  theme(legend.text = element_text(size=12), legend.title=element_text(size=14))
+
+pc4_plot
+# save plot
+ggsave(
+  filename = './results/09-dlmn_gam_pc4_plot.pdf',
+  plot = pc4_plot,
+  height = 8,
+  width = 16,
+  unit = 'in'
+)
+
 
 # Replication of Figure 2B. Visualize certain PC1 variables --------------------
 
@@ -529,6 +699,8 @@ nonyc_pc1_plot <- ggplot() +
       left_join(states, by=c("state"="state.name")) %>%
       mutate(county_state=paste(county,state.abb,sep=", ")),
     aes(x = PC1, y = exp(predicted), shape=metro_area),size=2) +
+  # custom shapes
+  scale_shape_manual(values=1:nlevels(factor(nonyc_complete_data$metro_area))) +
   # pc1 fit
   geom_line(
     data = data.frame(cbind(x=nonyc_save[[3]]$x, y=exp(nonyc_save[[3]]$fit))),
