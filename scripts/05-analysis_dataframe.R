@@ -72,6 +72,25 @@ p_ts_county
 dev.off()
 
 
+# Saving correlation matrix of mobility data ------------------------------
+# correlation matrix of variables
+pdf(
+  file = './results/05-mobility_corr_matrix.pdf'
+  , width = 8
+  , height = 8
+)
+
+corrplot(cor(analysis_df[,c("retail_and_recreation_percent_change_from_baseline",
+                            "grocery_and_pharmacy_percent_change_from_baseline",
+                            "parks_percent_change_from_baseline",
+                            "transit_stations_percent_change_from_baseline",
+                            "workplaces_percent_change_from_baseline"
+                            )],use = "complete.obs"), type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 45, tl.cex=0.5)
+
+dev.off()
+
+
 
 # Storing summary information --------------------------------------------------
 sink("./results/05-analysis_df_meta_info.txt")
