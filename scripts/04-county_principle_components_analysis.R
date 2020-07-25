@@ -83,6 +83,19 @@ write_csv(pca_df, './data/04-study_fips_pca.csv')
 
 
 # Results to save --------------------------------------------------------------
+
+# correlation matrix of variables
+pdf(
+  file = './results/04-rwj_corr_matrix.pdf'
+  , width = 8
+  , height = 8
+)
+
+corrplot(cor(rwj_nyt), type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 45, tl.cex=0.5)
+
+dev.off()
+
 # save summary of pca
 sink('./results/04-pca_summary.txt')
 print(summary(pca_rwj_nyt))
