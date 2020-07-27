@@ -59,7 +59,6 @@ dlnm.main.gam <- gam(
   method="REML"
 )
 
-
 # Before saving final, add same results from main GAM to list for plots
 original <- plot(dlnm.main.gam, pages=1, residuals=TRUE, seWithMean = TRUE)
 
@@ -84,6 +83,33 @@ county_pc1_pred <- analysis_df %>%
   bind_cols(predicted=original[[3]]$p.resid) %>% 
   group_by(metro_state_county, metro_area, county, state) %>% 
   summarise(PC1=mean(PC1),predicted=mean(predicted)) %>%
+  left_join(states, by=c("state"="state.name")) %>%
+  mutate(county_state=paste(county,state.abb,sep=", "))
+
+# predicted value for each county based on pc2
+county_pc2_pred <- analysis_df %>% 
+  filter(time_since_first_death >= 0) %>% 
+  bind_cols(predicted=original[[4]]$p.resid) %>% 
+  group_by(metro_state_county, metro_area, county, state) %>% 
+  summarise(PC2=mean(PC2),predicted=mean(predicted)) %>%
+  left_join(states, by=c("state"="state.name")) %>%
+  mutate(county_state=paste(county,state.abb,sep=", "))
+
+# predicted value for each county based on pc3
+county_pc3_pred <- analysis_df %>% 
+  filter(time_since_first_death >= 0) %>% 
+  bind_cols(predicted=original[[5]]$p.resid) %>% 
+  group_by(metro_state_county, metro_area, county, state) %>% 
+  summarise(PC3=mean(PC3),predicted=mean(predicted)) %>%
+  left_join(states, by=c("state"="state.name")) %>%
+  mutate(county_state=paste(county,state.abb,sep=", "))
+
+# predicted value for each county based on pc4
+county_pc4_pred <- analysis_df %>% 
+  filter(time_since_first_death >= 0) %>% 
+  bind_cols(predicted=original[[6]]$p.resid) %>% 
+  group_by(metro_state_county, metro_area, county, state) %>% 
+  summarise(PC4=mean(PC4),predicted=mean(predicted)) %>%
   left_join(states, by=c("state"="state.name")) %>%
   mutate(county_state=paste(county,state.abb,sep=", "))
 
@@ -133,6 +159,12 @@ main_model_list <- list(
   ),
   # County PC1 predictions
   county_pc1 = county_pc1_pred, 
+  # County PC2 predictions
+  county_pc2 = county_pc2_pred,
+  # County PC3 predictions
+  county_pc3 = county_pc3_pred,
+  # County PC4 predictions
+  county_pc4 = county_pc4_pred,
   # DLNM mobility
   dlnm = dlnm_data_main,
   # Coefficients
@@ -166,7 +198,9 @@ if (detectCores() < 20) {
   print('Running bootstraps in parallel; will run 10k iterations and use 20 cores')
   print('If this times out on a computing cluster, consider detaching screen or tmux session')
   cl <- makeCluster(20, setup_strategy = "sequential")
-  n <- 10000
+  n <- 1000 # setting to 1000 to test
+  # n <- 10000
+  
   ### NOTE ON BOOTSTRAP ###
   # THIS CAN TAKE A LONG TIME TO RUN. 1000 ITERATIONS IS LIKELY SUFFICIENT
   # THIS TAKES APPROXIMATELY 20 MINUTES ON 20 CORES

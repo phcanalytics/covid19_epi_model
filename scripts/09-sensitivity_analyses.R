@@ -142,7 +142,7 @@ pc1_plot <- ggplot() +
            summarise(PC1=mean(PC1),predicted=mean(predicted)) %>%
            left_join(states, by=c("state"="state.name")) %>%
            mutate(county_state=paste(county,state.abb,sep=", ")),
-    aes(x = PC1, y = exp(predicted), shape=metro_area),size=2) +
+    aes(x = PC1, y = exp(predicted), color=metro_area),size=2) +
   # pc1 fit
   geom_line(
     data = data.frame(cbind(x=save[[3]]$x, y=exp(save[[3]]$fit))),
@@ -164,7 +164,7 @@ pc1_plot <- ggplot() +
                  left_join(data.frame(state.name,state.abb), by=c("state"="state.name")) %>%
                  mutate(county_state=paste(county,state.abb,sep=", ")),
     aes(x = PC1, y = exp(predicted), label = county_state), 
-    size=3.75, direction="both", force=40, segment.size=0.25, 
+    size=3.75, direction="both", force=30, segment.size=0.25, 
     segment.linetype="dashed"
     ) +
   theme_classic() +
@@ -174,7 +174,7 @@ pc1_plot <- ggplot() +
   theme(axis.text = element_text(size=12), axis.title = element_text(size=14)) +
   theme(legend.text = element_text(size=12), legend.title=element_text(size=14))
 
-pc1_plot
+
 # save plot
 ggsave(
   filename = './results/09-dlmn_gam_pc1_plot.pdf',
@@ -679,14 +679,14 @@ lagged_mobility_nonyc <- ggplot(
   ) +
   theme_classic() +
   scale_x_continuous(expand=c(0,0), limits=c(0,30)) +
-  scale_y_continuous(expand=c(0,0), limits=c(0.7,1.5)) +
+  scale_y_continuous(expand=c(0,0), limits=c(0.6,1.5)) +
   theme(strip.background = element_blank()) +
   theme(legend.position = "bottom") 
-
+lagged_mobility_nonyc
 # save plot; paper figure
 ggsave(
   plot = lagged_mobility_nonyc,
-  filename = './results/07-lagged_mobility_nonyc.pdf',
+  filename = './results/09-no_nyc_lagged_mobility_slices.pdf',
   height = 8,
   width = 10,
   unit = 'in'
