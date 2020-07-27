@@ -142,13 +142,9 @@ pc1_plot <- ggplot() +
            summarise(PC1=mean(PC1),predicted=mean(predicted)) %>%
            left_join(states, by=c("state"="state.name")) %>%
            mutate(county_state=paste(county,state.abb,sep=", ")),
-<<<<<<< HEAD
-    aes(x = PC1, y = exp(predicted), color=metro_area),size=2) +
-=======
     aes(x = PC1, y = exp(predicted), shape=metro_area),size=2) +
   # custom shapes
   scale_shape_manual(values=1:nlevels(factor(complete_data$metro_area))) +
->>>>>>> b64a05db09b0bb3e79229e152e1961e6963a9381
   # pc1 fit
   geom_line(
     data = data.frame(cbind(x=save[[3]]$x, y=exp(save[[3]]$fit))),
