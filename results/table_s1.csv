@@ -1,0 +1,36 @@
+"","metro_area","county","state","time_since_first_death","cumulative_cases","cumulative_deaths"
+"1","Phoenix","Maricopa County","Arizona",112,76328,1049
+"2","San Francisco","Alameda County","California",109,7506,147
+"3","Los Angeles","Los Angeles County","California",121,127358,3738
+"4","Los Angeles","Orange County","California",107,22960,402
+"5","San Francisco","San Francisco County","California",107,4319,50
+"6","San Francisco","San Mateo County","California",117,3846,112
+"7","San Francisco","Santa Clara County","California",123,5863,167
+"8","Miami","Broward County","Florida",115,26705,438
+"9","Tampa-Orlando","Hillsborough County","Florida",106,17662,186
+"10","Miami","Miami-Dade County","Florida",105,58340,1118
+"11","Tampa-Orlando","Orange County","Florida",116,16147,77
+"12","Miami","Palm Beach County","Florida",110,19231,586
+"13","Tampa-Orlando","Pinellas County","Florida",108,10293,223
+"14","Tampa-Orlando","Polk County","Florida",101,6611,129
+"15","Chicago","Cook County","Illinois",115,94605,4693
+"16","Chicago","DuPage County","Illinois",108,9571,483
+"17","Chicago","Kane County","Illinois",107,8028,281
+"18","Chicago","Lake County","Illinois",105,10260,428
+"19","Chicago","McHenry County","Illinois",106,2296,103
+"20","Chicago","Will County","Illinois",113,7176,324
+"21","Chicago","Lake County","Indiana",104,5471,264
+"22","New Orleans","Jefferson Parish","Louisiana",114,10812,490
+"23","New Orleans","Orleans Parish","Louisiana",118,8476,541
+"24","New Orleans","St. Tammany Parish","Louisiana",108,3004,184
+"25","Detroit","Macomb County","Michigan",110,7979,929
+"26","Detroit","Oakland County","Michigan",112,12568,1102
+"27","Detroit","Wayne County","Michigan",114,23835,2750
+"28","New York City","New York City County","New York",118,223078,22739
+"29","Dallas","Dallas County","Texas",113,31525,445
+"30","El Paso","El Paso County","Texas",92,8746,150
+"31","Houston","Galveston County","Texas",97,5630,50
+"32","Houston","Harris County","Texas",113,42000,439
+"33","Dallas","Tarrant County","Texas",112,17334,262
+"34","Seattle","King County","Washington",132,11634,635
+"35","Seattle","Snohomish County","Washington",121,4438,178

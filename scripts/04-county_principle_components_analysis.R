@@ -75,7 +75,7 @@ pca_rwj_nyt <- prcomp(rwj_nyt, scale = TRUE) # scale == true for standarizing
 # join metro county state names for plotting
 pca_df <- data.frame(pca_rwj_nyt$x) %>% 
   rownames_to_column(var = 'fips') %>% 
-  left_join(state_county_fips, by = 'fips') %>% 
+  left_join(state_county_fips, by = 'fips') %>%
   select(fips, state:metro_state_county, PC1:PC24) 
 
 # Save PC dataframe for study counties
@@ -83,6 +83,19 @@ write_csv(pca_df, './data/04-study_fips_pca.csv')
 
 
 # Results to save --------------------------------------------------------------
+
+# correlation matrix of variables
+pdf(
+  file = './results/04-rwj_corr_matrix.pdf'
+  , width = 8
+  , height = 8
+)
+
+corrplot(cor(rwj_nyt), type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 45, tl.cex=0.5)
+
+dev.off()
+
 # save summary of pca
 sink('./results/04-pca_summary.txt')
 print(summary(pca_rwj_nyt))
