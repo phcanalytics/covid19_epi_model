@@ -16,23 +16,26 @@ attached base packages:
 [1] parallel  stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] doParallel_1.0.14  iterators_1.0.10   foreach_1.4.4      dlnm_2.4.2         mgcv_1.8-28       
- [6] nlme_3.1-139       corrplot_0.84      factoextra_1.0.5   RcppRoll_0.3.0     yaml_2.2.0        
-[11] forcats_0.4.0      stringr_1.4.0      dplyr_0.8.0.1      purrr_0.3.2        readr_1.3.1       
-[16] tidyr_0.8.3        tibble_3.0.1       ggplot2_3.3.1.9000 tidyverse_1.2.1    rocheBCE_2.4      
+ [1] doParallel_1.0.14  iterators_1.0.10   foreach_1.4.4      wesanderson_0.3.6  imputeTS_3.0      
+ [6] mvmeta_1.0.3       mgcv_1.8-28        nlme_3.1-139       corrplot_0.84      factoextra_1.0.5  
+[11] RcppRoll_0.3.0     yaml_2.2.0         sf_0.9-3           cowplot_0.9.4      gridExtra_2.3     
+[16] reshape2_1.4.3     ggrepel_0.8.2      dlnm_2.4.2         forcats_0.4.0      stringr_1.4.0     
+[21] dplyr_0.8.0.1      purrr_0.3.2        readr_1.3.1        tidyr_0.8.3        tibble_3.0.1      
+[26] ggplot2_3.3.1.9000 tidyverse_1.2.1    rocheBCE_2.4      
 
 loaded via a namespace (and not attached):
- [1] tseries_0.10-46   httr_1.4.1        jsonlite_1.6.1    splines_3.5.3     modelr_0.1.4     
- [6] assertthat_0.2.1  TTR_0.23-4        cellranger_1.1.0  ggrepel_0.8.2     pillar_1.4.4     
-[11] backports_1.1.7   lattice_0.20-38   glue_1.4.1        quadprog_1.5-5    digest_0.6.25    
-[16] rvest_0.3.3       colorspace_1.4-1  Matrix_1.2-17     plyr_1.8.4        timeDate_3043.102
-[21] pkgconfig_2.0.3   broom_0.5.2       haven_2.1.0       scales_1.1.1      generics_0.0.2   
-[26] farver_2.0.3      ellipsis_0.3.1    ggpubr_0.2        withr_2.2.0       urca_1.3-0       
-[31] nnet_7.3-12       cli_2.0.2         quantmod_0.4-14   magrittr_1.5      crayon_1.3.4     
-[36] readxl_1.3.1      forecast_8.5      fansi_0.4.1       xts_0.11-2        xml2_1.2.0       
-[41] tools_3.5.3       hms_0.4.2         lifecycle_0.2.0   munsell_0.5.0     packrat_0.5.0    
-[46] compiler_3.5.3    tsModel_0.6       stinepack_1.4     rlang_0.4.6       grid_3.5.3       
-[51] rstudioapi_0.11   imputeTS_3.0      labeling_0.3      gtable_0.3.0      codetools_0.2-16 
-[56] fracdiff_1.4-2    curl_4.3          reshape2_1.4.3    R6_2.4.1          zoo_1.8-5        
-[61] lubridate_1.7.4   stringi_1.4.3     Rcpp_1.0.4.6      vctrs_0.3.1       tidyselect_0.2.5 
-[66] lmtest_0.9-36    
+ [1] xts_0.11-2         lubridate_1.7.4    httr_1.4.0         tools_3.5.3        backports_1.1.7   
+ [6] R6_2.4.1           KernSmooth_2.23-15 DBI_1.1.0          colorspace_1.4-1   nnet_7.3-12       
+[11] withr_2.2.0        tidyselect_0.2.5   curl_4.3           compiler_3.5.3     cli_2.0.2         
+[16] rvest_0.3.3        pacman_0.5.1       xml2_1.2.0         labeling_0.3       tseries_0.10-46   
+[21] scales_1.1.1       lmtest_0.9-36      fracdiff_1.4-2     classInt_0.4-3     quadprog_1.5-5    
+[26] digest_0.6.25      pkgconfig_2.0.3    rlang_0.4.6        readxl_1.3.1       TTR_0.23-4        
+[31] rstudioapi_0.11    quantmod_0.4-14    farver_2.0.3       generics_0.0.2     zoo_1.8-5         
+[36] jsonlite_1.6       magrittr_1.5       Matrix_1.2-17      Rcpp_1.0.4.6       munsell_0.5.0     
+[41] fansi_0.4.1        tsModel_0.6        lifecycle_0.2.0    stringi_1.4.3      forecast_8.5      
+[46] plyr_1.8.4         grid_3.5.3         crayon_1.3.4       lattice_0.20-38    haven_2.1.0       
+[51] splines_3.5.3      hms_0.4.2          pillar_1.4.4       ggpubr_0.2         codetools_0.2-16  
+[56] urca_1.3-0         glue_1.4.1         packrat_0.5.0      stinepack_1.4      modelr_0.1.4      
+[61] vctrs_0.3.1        cellranger_1.1.0   gtable_0.3.0       assertthat_0.2.1   broom_0.5.2       
+[66] e1071_1.7-1        mixmeta_1.0.8      class_7.3-15       timeDate_3043.102  units_0.6-2       
+[71] ellipsis_0.3.1    

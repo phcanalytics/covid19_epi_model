@@ -1,0 +1,11 @@
+[1] "#### PC 1 City Effect Estimates ####"
+# A tibble: 7 x 3
+  metro_area      min   max
+  <chr>         <dbl> <dbl>
+1 Dallas        1.48  1.57 
+2 El Paso       1.53  1.53 
+3 Houston       1.46  1.60 
+4 Miami         1.47  1.52 
+5 New Orleans   1.51  1.81 
+6 San Francisco 0.151 0.341
+7 Tampa-Orlando 1.32  1.92 

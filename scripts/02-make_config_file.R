@@ -13,7 +13,7 @@ library(yaml)
 
 # Number of bootsraps to run
 
-# setting end date to '2020-07-17' for manuscript
+# setting end date to '2020-07-10' for manuscript
 
 end_date <- '2020-07-10'
 ####
@@ -63,7 +63,7 @@ study_fips <- as.character(
     #"12031" # jacksonville
   )
 )
-
+length(study_fips)
 # Read in RWJ Data Dictionary --------------------------------------------------
 # read in roche variable names for rwj
 roche_rwj <- read_csv('./references/data_dictionary/rwj_roche_var_names.csv')

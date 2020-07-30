@@ -187,17 +187,49 @@ ggsave(
   )
 
 # saving metro area comparsions of SF and NO
-sink("./results/09-sanfran_neworleans_estimates.txt")
+sink("./results/09-pc1_reported_estimates.txt")
 
+print("#### PC 1 City Effect Estimates ####")
 # Get the relative ranges for New Orleans vs SF
 city_est <- cbind(complete_data, predicted=save[[3]]$p.resid) %>% 
   mutate(county_state=paste(county,state,sep=", ")) %>%
   group_by(metro_state_county, metro_area, county) %>% 
   summarise(PC1=mean(PC1),predicted=mean(predicted)) %>% 
-  filter(metro_area%in%c("New Orleans","San Francisco")) %>% 
+  filter(
+    metro_area %in% c("New Orleans","San Francisco", "El Paso", 
+                      "Dallas", "Houston", "Miami", 'Tampa-Orlando')
+    ) %>% 
   group_by(metro_area) %>% summarise(min=min(exp(predicted)),max=max(exp(predicted)))  
+
 print(city_est)
 
+sink()
+
+# PC4 estimates
+
+sink("./results/09-pc4_reported_estimates.txt")
+print("#### PC 4 City Effect Estimates ####")
+
+city_est_pc4 <- cbind(complete_data, predicted=save[[6]]$p.resid) %>% 
+  mutate(county_state=paste(county,state,sep=", ")) %>%
+  group_by(metro_state_county, metro_area, county) %>% 
+  summarise(PC4=mean(PC4),predicted=mean(predicted)) %>% 
+  filter(
+    metro_area %in% c("New Orleans","Los Angeles", "Chicago", "Miami", 'Tampa-Orlando')
+  ) %>% 
+  group_by(metro_area) %>% summarise(min=min(exp(predicted)),max=max(exp(predicted)))  
+
+print(city_est_pc4)
+
+print("### SLOPE of PC4")
+
+print(
+  paste0(
+    "Slope/Change log mortality rate of of PC4 for a 1 unit change in PC4: ",
+    # takes mean of y/x to find linear slope
+    round(mean(cbind(save[[6]]$x, save[[6]]$fit)[,2]/cbind(save[[6]]$x, save[[6]]$fit)[,1]),2)
+  )
+)
 sink()
 
 
@@ -357,7 +389,7 @@ pc4_plot <- ggplot() +
   theme(axis.text = element_text(size=12), axis.title = element_text(size=14)) +
   theme(legend.text = element_text(size=12), legend.title=element_text(size=14))
 
-pc4_plot
+
 # save plot
 ggsave(
   filename = './results/09-dlmn_gam_pc4_plot.pdf',
@@ -854,7 +886,7 @@ lagged_mobility_nonyc <- ggplot(
   scale_y_continuous(expand=c(0,0), limits=c(0.6,1.5)) +
   theme(strip.background = element_blank()) +
   theme(legend.position = "bottom") 
-lagged_mobility_nonyc
+
 # save plot; paper figure
 ggsave(
   plot = lagged_mobility_nonyc,
@@ -944,7 +976,7 @@ ggsave(
 
 # Specific estimates to report in paper
 rr_estimates_paper_bothmods <- lagged_estimates_bothmods %>% 
-  filter(mobility %in% c("-50", "10") & lag %in% c(15,30)) %>% 
+  filter(mobility %in% c("-80" ,"-50", "-25", "-10", "10") & lag %in% c(0,15,30)) %>% 
   dplyr::select(-type) %>% 
   rename(
     relative_death_rate = RR, 
@@ -954,7 +986,8 @@ rr_estimates_paper_bothmods <- lagged_estimates_bothmods %>%
   mutate_at(
     vars(relative_death_rate:upper_95),
     list(~round(as.numeric(.), 3))
-  )
+  ) %>% 
+  arrange(desc(model), mobility, lag)
 
 # save as csv of text estimates at different mobility days
 print(rr_estimates_paper_bothmods)

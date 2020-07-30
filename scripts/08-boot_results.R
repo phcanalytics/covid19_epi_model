@@ -274,7 +274,7 @@ pc4_plot <- ggplot() +
     size=3, direction="both", force=30, segment.size=0.25
   ) +
   ylim(0,3.4) +
-  ggtitle("D") +
+  ggtitle("D.") +
   theme_classic() +
   ylab("") +
   xlab("Air Pollution and Elderly Population") +
@@ -532,7 +532,7 @@ ggsave(
 # DLNM estimates reported in text ----------------------------------------------
 # Specific estimates to report in paper
 rr_estimates_paper <- dlnm_data_plot %>% 
-  filter(mobility %in% c("-80", "-50", "10") & lag_day %in% c(0,15,30)) %>% 
+  filter(mobility %in% c("-80", "-50", "-25", "-10", "10") & lag_day %in% c(0,15,30)) %>% 
   select(mobility, lag_day, fit, lower_95, upper_95) %>% 
   # exp the lower bounds
   mutate_at(vars(fit, lower_95, upper_95), ~round(exp(.),2)) %>% 

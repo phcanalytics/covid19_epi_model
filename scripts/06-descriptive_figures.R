@@ -30,8 +30,9 @@ first_obs <- analysis_df %>%
 # Now break into 3x3 groups for the bivariate plots
 d <- expand.grid(x=1:3, y=1:3)
 
+
 # Break variables of interest into quantiles
-x.v <- quantile(first_obs$adult_obesity_v011, c(0.33,0.66,1))
+x.v <- quantile(first_obs$disease_diabetes_prevalence_v060, c(0.33,0.66,1))
 y.v <- quantile(first_obs$median_household_income_v063, c(0.33,0.66,1))
 
 # create appropriate labels for d
@@ -49,7 +50,7 @@ y_labs <- c(
 
 d <- merge(d,data.frame(x=1:3, xlabel = x_labs), by="x")
 d <- merge(d,data.frame(y=1:3, ylabel = y_labs), by="y")
-
+first_obs$dis
 # Grab the two variables to plot
 bivariates <- first_obs %>% 
   mutate(
@@ -58,11 +59,11 @@ bivariates <- first_obs %>%
       ifelse(median_household_income_v063 < y.v[2], 2, 3)
       ) ,
     x = ifelse(
-      adult_obesity_v011 < x.v[1],1,
-      ifelse(adult_obesity_v011 < x.v[2],2,3)
+      disease_diabetes_prevalence_v060 < x.v[1],1,
+      ifelse(disease_diabetes_prevalence_v060 < x.v[2],2,3)
     )  
   )   %>%
-  select(fips,county,state,adult_obesity_v011,median_household_income_v063,y,x) %>% 
+  select(fips,county,state,disease_diabetes_prevalence_v060,median_household_income_v063,y,x) %>% 
   # make variable, map colors
   mutate(map_colors = atan(y/x), alpha_colors=x+y)
 
@@ -109,7 +110,7 @@ legend_plot <- ggplot(
     plot.margin=margin(t=2,b=2,l=2, r=2)
     ) + 
   labs(
-    x = "Adult Obesity Prevalence %",
+    x = "Diabetes Prevalence %",
     y = "Median\nHousehold Income"
     )
 
