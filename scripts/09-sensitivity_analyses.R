@@ -195,6 +195,7 @@ city_est <- cbind(complete_data, predicted=save[[3]]$p.resid) %>%
   mutate(county_state=paste(county,state,sep=", ")) %>%
   group_by(metro_state_county, metro_area, county) %>% 
   summarise(PC1=mean(PC1),predicted=mean(predicted)) %>% 
+  filter(county != 'Polk County') %>% 
   filter(
     metro_area %in% c("New Orleans","San Francisco", "El Paso", 
                       "Dallas", "Houston", "Miami", 'Tampa-Orlando')
@@ -203,7 +204,17 @@ city_est <- cbind(complete_data, predicted=save[[3]]$p.resid) %>%
 
 print(city_est)
 
+print('### Constrasts for New Orleans and SF #####')
+print(paste0('Max difference : ', round(exp(log(city_est[5,3]) - (log(city_est[6,2]))),1)))
+print(paste0('Min difference : ', round(exp(log(city_est[5,2]) - (log(city_est[6,3]))),1)))
+
+
+print('### Contrast betweeh FL/Tx and SF ####')
+print(paste0('Max difference : ', round(exp(log(city_est[3,3]) - (log(city_est[6,2]))),1)))
+print(paste0('Min difference : ', round(exp(log(city_est[7,2]) - (log(city_est[6,3]))),1)))
+
 sink()
+
 
 # PC4 estimates
 
