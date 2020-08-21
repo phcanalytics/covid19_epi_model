@@ -13,9 +13,9 @@ library(yaml)
 
 # Number of bootsraps to run
 
-# setting end date to '2020-05-13' for manuscript
+# setting end date to '2020-07-10' for manuscript
 
-end_date <- '2020-05-13'
+end_date <- '2020-07-10'
 ####
 # Commented out code to use last date of google mobility as end date for paper 
 # taking last date mobility is available
@@ -36,13 +36,34 @@ study_window <- list(
 # study fips 
 study_fips <- as.character(
   c(
-    "06001","06037","06059","06075","06081","06085","17031","17043","17089",
-    "17097","17111","17197","18089","22051","22071","22075","22087","22103", 
-    "26099","26125","26163","36005","36047","36061","36081","36085","53033",
-    "53061"
-    )
+    # california
+    "06001","06075","06081","06085", # bay area
+    "06037","06059", # los angeles and orange county
+    # chicago
+    "17031","17043","17089","17097","17111","17197","18089", # chicago
+    # commenting out st bernards and plaquemines due to missing mobility data
+    "22051","22071","22103", # new orleans; "22075", "22087" # plaquemines & st bernards
+    "26099","26125","26163", # detroit
+    "36005","36047","36061","36081","36085", # new york city
+    "53033","53061", # seattle wa
+    # texas
+    "48201", "48167", # houston tx; harris and galveston county
+    # "48453", # austin tx; travis
+    "48113", "48439", # dallas and tarrant county tx
+    # "48029", # san antonio
+    "48141", # el paso
+    # arizona
+    "04013", # phoenix
+    # florida
+    "12011", # ft. lauderdale broward 
+    "12086", # miami-dade
+    "12057", "12103", # tampa and st. petes
+    "12105", "12095", # orlandoish: polk, orange 
+    "12099" # palm beach
+    #"12031" # jacksonville
+  )
 )
-
+length(study_fips)
 # Read in RWJ Data Dictionary --------------------------------------------------
 # read in roche variable names for rwj
 roche_rwj <- read_csv('./references/data_dictionary/rwj_roche_var_names.csv')

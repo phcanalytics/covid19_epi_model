@@ -1,2 +1,2 @@
-[1] "Bootstrap run time for n interations: 10000"
-Time difference of 3.07571 hours
+[1] "Bootstrap run time for n interations: 1000"
+Time difference of 3.129061 hours

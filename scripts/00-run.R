@@ -105,7 +105,7 @@ status <- tryCatch(
   )
 
 # Before running the parallel bootstrap of the main gam, check number of cores
-# If cores at least 20, will run a 10k bootstrap iteration; takes about 3 hours
+# If cores at least 20, will run a 1000 bootstrap iteration; takes about 3 hours
 # If cores available less than 20, run a smaller bootstrap sample of 100 on
 # a local for loop
 
@@ -115,7 +115,7 @@ if (parallel::detectCores() < 20) {
   print('Running locally; will run 100 iterations and use all but 1 of system cores')
   print('Note this took 25 minutes on an 8 core Mac Book Pro')
 } else {
-  print('Running bootstraps in parallel; will run 10k iterations and use 20 cores')
+  print('Running bootstraps in parallel; will run 1000 iterations and use 20 cores')
   print('Note this took 3 hours with 20 cores')
 } 
 

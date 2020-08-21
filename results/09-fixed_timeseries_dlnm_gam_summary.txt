@@ -9,44 +9,37 @@ daily_deaths ~ fix_ts_cbgam + s(time_since_first_death) + s(time_since_first_dea
     bs = "cr", k = 5) + offset(log(population_v051))
 
 Parametric coefficients:
-                   Estimate Std. Error t value Pr(>|t|)    
-(Intercept)       -12.11114    0.39466 -30.687  < 2e-16 ***
-fix_ts_cbgamv1.l1  -0.13247    0.02605  -5.086 4.32e-07 ***
-fix_ts_cbgamv1.l2  -0.06008    0.01498  -4.011 6.46e-05 ***
-fix_ts_cbgamv1.l3   0.01420    0.01113   1.276    0.202    
-fix_ts_cbgamv1.l4   0.09052    0.01800   5.029 5.78e-07 ***
-fix_ts_cbgamv2.l1  -0.17046    0.03351  -5.086 4.31e-07 ***
-fix_ts_cbgamv2.l2  -0.07730    0.01927  -4.012 6.44e-05 ***
-fix_ts_cbgamv2.l3   0.01827    0.01432   1.276    0.202    
-fix_ts_cbgamv2.l4   0.11647    0.02315   5.030 5.74e-07 ***
-fix_ts_cbgamv3.l1  -0.25857    0.05083  -5.087 4.30e-07 ***
-fix_ts_cbgamv3.l2  -0.11725    0.02922  -4.013 6.41e-05 ***
-fix_ts_cbgamv3.l3   0.02771    0.02170   1.277    0.202    
-fix_ts_cbgamv3.l4   0.17668    0.03511   5.032 5.68e-07 ***
-fix_ts_cbgamv4.l1  -0.50244    0.09878  -5.087 4.30e-07 ***
-fix_ts_cbgamv4.l2  -0.22781    0.05679  -4.011 6.46e-05 ***
-fix_ts_cbgamv4.l3   0.05385    0.04218   1.276    0.202    
-fix_ts_cbgamv4.l4   0.34330    0.06822   5.032 5.68e-07 ***
+                    Estimate Std. Error t value Pr(>|t|)    
+(Intercept)       -12.314810   0.437436 -28.152  < 2e-16 ***
+fix_ts_cbgamv1.l1   0.035480   0.051757   0.686 0.493071    
+fix_ts_cbgamv1.l2  -0.124481   0.030283  -4.111 4.05e-05 ***
+fix_ts_cbgamv1.l3   0.044920   0.028381   1.583 0.113576    
+fix_ts_cbgamv1.l4   0.050562   0.044803   1.129 0.259183    
+fix_ts_cbgamv2.l1  -0.013296   0.071178  -0.187 0.851829    
+fix_ts_cbgamv2.l2  -0.208327   0.034220  -6.088 1.28e-09 ***
+fix_ts_cbgamv2.l3  -0.006270   0.032105  -0.195 0.845165    
+fix_ts_cbgamv2.l4   0.169042   0.048668   3.473 0.000521 ***
+fix_ts_cbgamv3.l1  -0.061450   0.086484  -0.711 0.477420    
+fix_ts_cbgamv3.l2  -0.266407   0.039657  -6.718 2.18e-11 ***
+fix_ts_cbgamv3.l3   0.006426   0.035124   0.183 0.854847    
+fix_ts_cbgamv3.l4   0.216081   0.056418   3.830 0.000131 ***
+fix_ts_cbgamv4.l1  -0.484811   0.374249  -1.295 0.195269    
+fix_ts_cbgamv4.l2  -0.476770   0.244997  -1.946 0.051741 .  
+fix_ts_cbgamv4.l3   0.108061   0.192176   0.562 0.573950    
+fix_ts_cbgamv4.l4   0.658557   0.204453   3.221 0.001290 ** 
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Approximate significance of smooth terms:
-                                                edf  Ref.df        F  p-value
-s(time_since_first_death)                     6.823   7.784    7.527 5.09e-09
-s(time_since_first_death,metro_state_county) 39.829 234.000 3697.123 7.36e-12
-s(PC1)                                        1.119   1.132   31.804 3.73e-09
-s(PC2)                                        2.397   2.447    2.544   0.0538
-s(PC3)                                        1.000   1.000    2.501   0.1139
-s(PC4)                                        1.349   1.377    0.764   0.3474
-                                                
-s(time_since_first_death)                    ***
-s(time_since_first_death,metro_state_county) ***
-s(PC1)                                       ***
-s(PC2)                                       .  
-s(PC3)                                          
-s(PC4)                                          
+                                                edf  Ref.df      F  p-value    
+s(time_since_first_death)                     5.899   7.045  5.452 2.92e-06 ***
+s(time_since_first_death,metro_state_county) 80.113 344.000 34.458  < 2e-16 ***
+s(PC1)                                        1.883   1.925 11.148 6.25e-05 ***
+s(PC2)                                        2.607   2.658  4.345 0.004571 ** 
+s(PC3)                                        3.109   3.153  6.468 0.000217 ***
+s(PC4)                                        1.000   1.000 12.884 0.000336 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-R-sq.(adj) =  0.884   Deviance explained = 91.3%
--REML = 1510.9  Scale est. = 4.4896    n = 1128
+R-sq.(adj) =  0.875   Deviance explained = 86.9%
+-REML =   4056  Scale est. = 4.1917    n = 3255

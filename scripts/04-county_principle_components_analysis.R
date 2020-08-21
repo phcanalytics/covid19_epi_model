@@ -27,14 +27,21 @@ state_county_fips <- read_csv('./data/source_data/county_fips.csv') %>%
     by = 'state') %>% 
   mutate(
     metro_area = case_when(
-      state == "Michigan" ~ "Detroit", 
-      state == "Louisiana" ~ "New Orleans",
-      state == "Washington"~ "Seattle",
-      state == "Indiana" | state == "Illinois" ~ "Chicago",
-      state == "New York" ~ "New York City",
-      (state == "California" & 
-         county == 'Los Angeles County' | county == "Orange County") ~ "Los Angeles",
-      TRUE ~ "San Francisco"
+      fips %in% c("26099","26125","26163") ~ "Detroit", 
+      fips %in% c("22051","22071","22075","22087","22103") ~ "New Orleans",
+      fips %in% c("53033","53061") ~ "Seattle",
+      fips %in% c("17031","17043","17089","17097","17111","17197","18089") ~ "Chicago",
+      fips %in% c("36005","36047","36061","36081","36085") ~ "New York City",
+      fips %in% c("04013") ~ "Phoenix",
+      fips %in% c("48201", "48167") ~ "Houston",
+      fips %in% c("48453", "48029") ~ "Austin and San Antonio",
+      fips %in% c("48113", "48439") ~ "Dallas",
+      fips %in% c("48141") ~ "El Paso",
+      fips %in% c("06037","06059") ~ "Los Angeles",
+      fips %in% c("06001","06075","06081","06085") ~ "San Francisco",
+      fips %in% c("12011","12086","12099") ~ "Miami", 
+      fips %in% c("12057", "12103", "12105", "12095") ~ "Tampa-Orlando",
+      fips %in% c("12031") ~ "Jacksonville"
     )
   ) %>%
   mutate(
@@ -68,7 +75,7 @@ pca_rwj_nyt <- prcomp(rwj_nyt, scale = TRUE) # scale == true for standarizing
 # join metro county state names for plotting
 pca_df <- data.frame(pca_rwj_nyt$x) %>% 
   rownames_to_column(var = 'fips') %>% 
-  left_join(state_county_fips, by = 'fips') %>% 
+  left_join(state_county_fips, by = 'fips') %>%
   select(fips, state:metro_state_county, PC1:PC24) 
 
 # Save PC dataframe for study counties
@@ -76,6 +83,19 @@ write_csv(pca_df, './data/04-study_fips_pca.csv')
 
 
 # Results to save --------------------------------------------------------------
+
+# correlation matrix of variables
+pdf(
+  file = './results/04-rwj_corr_matrix.pdf'
+  , width = 8
+  , height = 8
+)
+
+corrplot(cor(rwj_nyt), type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 45, tl.cex=0.5)
+
+dev.off()
+
 # save summary of pca
 sink('./results/04-pca_summary.txt')
 print(summary(pca_rwj_nyt))

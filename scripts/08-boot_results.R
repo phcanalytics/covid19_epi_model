@@ -78,6 +78,16 @@ county_pc1 <- main_model_list$county_pc1 %>%
   ungroup() %>% 
   mutate(metro_area = factor(metro_area))
 
+county_pc1_labels <- main_model_list$county_pc1 %>% 
+  group_by(metro_area) %>% 
+  filter(
+    PC1 == max(PC1) | 
+      PC1 == min(PC1) |
+      metro_area %in% c('New Orleans', 'San Francisco')
+    ) %>% 
+  ungroup() %>% 
+  mutate(metro_area = factor(metro_area))
+
 # limit analysis_df to complete_data to get certain pc estimates
 # to time_since_first_death >= 0; note this is the same data modeled in gam
 complete_data <- analysis_df %>% 
@@ -97,20 +107,23 @@ pc1_plot <- ggplot() +
     data = county_pc1, 
     aes(x = PC1, y = exp(predicted), shape=metro_area), size=2
   ) +
-  scale_shape_manual("Metropolitan area", values=c(15:18,8,6,3)) +
+  scale_shape_manual("Metropolitan area", values=c(15:18,8,6,3,0,4,10,5,2,1)) +
   # labels
   geom_text_repel(
-    data = county_pc1,
+    data = county_pc1_labels,
     aes(x = PC1, y = exp(predicted), label = county_state),
-    size=3.5, direction="both", force=10, segment.size=0.25,
-    segment.linetype="dashed"
+    size=3, direction="both", force=30, segment.size=0.25
   ) +
-  ggtitle("A") +
+  ylim(0,3.4) + # fixing ylim so A and D pannel are same
+  ggtitle("A.") +
   theme_classic() +
   ylab("Relative Daily Mortality Rate (RR)") +
   xlab("Health and Wealth") +
-  theme(axis.text = element_text(size=12), axis.title = element_text(size=14)) +
-  theme(legend.text = element_text(size=12), legend.title=element_text(size=14))
+  theme(
+    axis.text = element_text(size=12), 
+    axis.title = element_text(size=14),
+    legend.position = "none" # shared legend with pc4
+    ) 
 
 # set up principle components plots
 pc1_levels <- data.frame(
@@ -125,6 +138,7 @@ pc1_levels_x <- data.frame(
   ) %>% 
   arrange(PC1) %>%
   distinct()
+
 
 # smoking plot
 p_smoking <- complete_data %>%
@@ -186,6 +200,122 @@ p_income <- complete_data %>%
   scale_y_continuous(expand = c(0, 0)) +
   ggtitle("C. Median household income") +
   theme(legend.position="none") +
+  theme(
+    axis.text.y = element_blank(),
+    panel.border = element_blank(),
+    axis.line.x = element_line(size = 0.5, linetype = "solid", colour = "black"),
+    axis.line.y = element_line(size = 0.5, linetype = "solid", colour = "black")
+    ) 
+
+# PC4 -----
+# REVISED FIGURE 2 contains PC4 as well, performing percentile boots
+# PC4 bootstrapped estimates
+
+# extract all boot statistics from all bootstraps
+boot_statistic_pc4 <- do.call(
+  'rbind',
+  lapply(boot_results_list, function(x){
+    # test if for each given value on the pc1 x predictor, it's greater than estimated
+    x$pc4$plotme$ystar
+  }) # end function
+) 
+
+ci_pc4 <- data.frame(
+  do.call(
+    'rbind',
+    lapply(1:ncol(boot_statistic_pc4), function(x){
+      quantile(
+        # vector of expected y star
+        boot_statistic_pc4[,x], 
+        probs = c(0.025,0.975)
+        )} # end function for quantile 95% CI
+    )
+  )
+) 
+
+# assign new names 
+colnames(ci_pc4) <- c('lower_95', 'upper_95')
+# add pc1 value to ci dataframe
+ci_pc4$pc4 <- boot_results_list[[1]]$pc4$plotme$x
+
+# pc4 original estimates
+pc4_orig <- data.frame(main_model_list$pc4$plotme)
+
+
+# county-specifc pc4s
+county_pc4 <- main_model_list$county_pc4 %>% 
+  ungroup() %>% 
+  mutate(metro_area = factor(metro_area))
+
+county_pc4_labels <- main_model_list$county_pc4 %>% 
+  group_by(metro_area) %>% 
+  filter(PC4 == max(PC4) | PC4 == min(PC4)) %>% 
+  ungroup() %>% 
+  mutate(metro_area = factor(metro_area))
+
+# pc4 plot
+pc4_plot <- ggplot() +
+  geom_hline(yintercept=1, linetype="dashed", col="grey") +
+  geom_line(data = pc4_orig, aes(x=x, y=exp(ystar)), color = 'black', size = 0.8) +
+  geom_ribbon(
+    data = ci_pc4, 
+    aes(x=pc4, ymin = exp(lower_95), ymax = exp(upper_95)), 
+    fill = 'lightgrey', alpha = 0.4
+  ) +
+  geom_point(
+    data = county_pc4, 
+    aes(x = PC4, y = exp(predicted), shape=metro_area), size=2
+  ) +
+  scale_shape_manual("Metropolitan area", values=c(15:18,8,6,3,0,4,10,5,2,1)) +
+  # labels
+  geom_text_repel(
+    data = county_pc4_labels,
+    aes(x = PC4, y = exp(predicted), label = county_state),
+    size=3, direction="both", force=30, segment.size=0.25
+  ) +
+  ylim(0,3.4) +
+  ggtitle("D.") +
+  theme_classic() +
+  ylab("") +
+  xlab("Air Pollution and Elderly Population") +
+  theme(axis.text = element_text(size=12), axis.title = element_text(size=14)) +
+  theme(legend.text = element_text(size=12), legend.title=element_text(size=14))
+
+
+# set up principle components plots
+pc4_levels <- data.frame(
+  PC4=complete_data$PC4, metro_state_county=complete_data$metro_state_county
+  ) %>% 
+  distinct() %>%
+  arrange(PC4) %>% 
+  pull(metro_state_county)
+
+pc4_levels_x <- data.frame(
+  PC4=complete_data$PC4, metro_state_county=complete_data$metro_state_county
+  ) %>% 
+  arrange(PC4) %>%
+  distinct()
+
+# air pollution mean daily pm2.5
+pm25_plot <- complete_data %>%
+  select(metro_state_county, air_pollution_parti_matter_v125) %>%
+  rename("Mean Daily PM2.5" = air_pollution_parti_matter_v125) %>%
+  left_join(pc4_levels_x) %>%
+  mutate(metro_state_county=factor(metro_state_county, 
+                                   levels = rev(pc4_levels))) %>%
+  melt(id=c("metro_state_county","PC4")) %>%
+  distinct() %>% 
+  ggplot(aes(metro_state_county, value)) +
+  geom_bar(stat="identity", aes(fill=PC4)) +
+  scale_fill_gradient2(low = "darkgrey", high="lightgrey", midpoint=10) + 
+  xlab("") +
+  ylab(expression("Mean Daily PM"["2.5"])) +
+  coord_flip() +
+  theme_bw() +
+  theme(panel.grid = element_blank()) +
+  scale_y_continuous(expand = c(0, 0)) +
+  ggtitle("E. Air pollution") +
+  theme(legend.position="none") +
   theme(axis.text.y = element_blank()) +
   theme(panel.border = element_blank(),
         axis.line.x = element_line(size = 0.5, linetype = "solid", colour = "black"),
@@ -193,18 +323,19 @@ p_income <- complete_data %>%
 
 # grid extra layout
 fig2_layout <- rbind(
-  c(1,1,1,2),
-  c(1,1,1,3)
+  c(1,1,1,1,4,4,4,4,4),
+  c(1,1,1,1,4,4,4,4,4),
+  c(2,2,3,3,NA,5,5,NA,NA)
 )
 
 # png version of figure 2 for paper; 300 dpi for publication quality
 png("./results/08-fig_2.png",width=12, height=7, units="in", res=300)
-grid.arrange(pc1_plot, p_smoking, p_income, layout_matrix=fig2_layout)
+grid.arrange(pc1_plot, p_smoking, p_income, pc4_plot, pm25_plot, layout_matrix=fig2_layout)
 dev.off()
 
 # saving a pdf version as well
 pdf("./results/08-fig_2.pdf",width=12, height=7)
-grid.arrange(pc1_plot, p_smoking, p_income, layout_matrix=fig2_layout)
+grid.arrange(pc1_plot, p_smoking, p_income, pc4_plot, pm25_plot, layout_matrix=fig2_layout)
 dev.off()
 
 # Figure 2: all bootstrapped estimates version ---------------------------------
@@ -217,21 +348,21 @@ pc1_all_boots_plot <- ggplot() +
   geom_line(
     data = pc1_df, 
     aes(x=x, y = exp(ystar), group = iteration), 
-    color = 'lightblue', alpha = 0.1, size = 0.1
+    color = 'lightblue', alpha = 0.1, size = 0.5
   ) +
   geom_line(data = pc1_orig, aes(x=x, y=exp(ystar)), color = 'darkblue', size = 0.8) +
   geom_point(
     data = county_pc1, 
-    aes(x = PC1, y = exp(predicted), shape=metro_area), size=2
+    aes(x = PC1, y = exp(predicted)), size=2
   ) +
-  scale_shape_manual("Metropolitan area", values=c(15:18,8,6,3)) +
+  #scale_shape_manual("Metropolitan area", values=c(15:18,8,6,3)) +
   # labels
   geom_text_repel(
     data = county_pc1,
     aes(x = PC1, y = exp(predicted), label = county_state),
-    size=3.5, direction="both", force=10, segment.size=0.25,
-    segment.linetype="dashed"
+    size=3.5, direction="both", force=30, segment.size=0.25
   ) +
+  geom_hline(yintercept=1, linetype="dashed", col="red") +
   ggtitle("A") +
   theme_classic() +
   ylab("Relative Daily Mortality Rate (RR)") +
@@ -291,7 +422,7 @@ dlnm_data_orig <- main_model_list$dlnm %>%
 #     upper_prob = pnorm((2*qnorm(prob)) + 1.96)
 #   )
 
-# find Confidence intervals 
+# find dlnm confidence intervals 
 dlnm_bca_ci <- do.call(
   'rbind', 
   apply(
@@ -401,7 +532,7 @@ ggsave(
 # DLNM estimates reported in text ----------------------------------------------
 # Specific estimates to report in paper
 rr_estimates_paper <- dlnm_data_plot %>% 
-  filter(mobility %in% c("-80", "-50", "10") & lag_day %in% c(0,15,30)) %>% 
+  filter(mobility %in% c("-80", "-50", "-25", "-10", "10") & lag_day %in% c(0,15,30)) %>% 
   select(mobility, lag_day, fit, lower_95, upper_95) %>% 
   # exp the lower bounds
   mutate_at(vars(fit, lower_95, upper_95), ~round(exp(.),2)) %>% 
@@ -424,7 +555,7 @@ dlnm_all_boots_plot <- ggplot() +
         )
       ), # end mutate,
     aes(x=lag_day, y=rr, group = iteration, color = mobility),
-    size = 0.05, alpha = 0.1
+    size = 0.1, alpha = 0.1
     ) +
   geom_line(
     data=dlnm_data_plot, 
@@ -487,7 +618,6 @@ ggsave(
 # ADDITIONAL PLOTS FROM GAM MODEL 
 # These are plots of each boot iteration and the original model fit.
 
-
 # Global temporal trend of COVID19 deaths --------------------------------------
 temp_df <- boot_results_list %>%
   map_dfr(~ .x$temporal$plotme)
@@ -516,6 +646,47 @@ ggsave(
   unit = 'in'
 )
 
+# PC1 --------------------------------------------------------------------------
+pc1_df <- boot_results_list %>%
+  map_dfr(~ .x$pc1$plotme)
+
+# county-specifc pc2
+county_pc1 <- main_model_list$county_pc1 %>% 
+  ungroup() %>% 
+  mutate(metro_area = factor(metro_area))
+
+# pc original
+pc1_orig <- data.frame(main_model_list$pc1$plotme)
+
+pc1_boot_plot <- ggplot() +
+  geom_line(data = pc1_df, aes(x=x, y=exp(ystar), group=iteration, color='Bootstrap'),
+            alpha = 0.4, size = 0.1) +
+  geom_line(data=pc1_orig, aes(x=x, y=exp(ystar), color = 'Original'), size = 0.8) +
+  geom_hline(aes(yintercept = 1), color = 'red', linetype = 'dashed') +
+  geom_point(
+    data = county_pc1, 
+    aes(x = PC1, y = exp(predicted)), size = 2 #, shape=metro_area), size=2
+  ) +
+  geom_text_repel(
+    data = county_pc1,
+    aes(x = PC1, y = exp(predicted), label = county_state),
+    size=3.5, direction="both", force=40, segment.size=0.25
+  ) +
+  scale_color_manual('', values = c('lightblue', 'darkblue')) +
+  ylab('Relative Daily COVID19 Death Rate') +
+  xlab('PC1') +
+  theme_minimal() +
+  theme(legend.position = 'bottom')
+
+# save plot 
+ggsave(
+  filename = './results/08-pc1_all_boots.pdf',
+  plot = pc1_boot_plot,
+  height = 8,
+  width = 8,
+  unit = 'in'
+)
+
 
 # PC2 --------------------------------------------------------------------------
 
@@ -523,6 +694,11 @@ ggsave(
 # purrr::map_dfr bind
 pc2_df <- boot_results_list %>%
   map_dfr(~ .x$pc2$plotme)
+
+# county-specifc pc2
+county_pc2 <- main_model_list$county_pc2 %>% 
+  ungroup() %>% 
+  mutate(metro_area = factor(metro_area))
 
 # pc original
 pc2_orig <- data.frame(main_model_list$pc2$plotme)
@@ -532,6 +708,15 @@ pc2_boot_plot <- ggplot() +
             alpha = 0.4, size = 0.1) +
   geom_line(data=pc2_orig, aes(x=x, y=exp(ystar), color = 'Original'), size = 0.8) +
   geom_hline(aes(yintercept = 1), color = 'red', linetype = 'dashed') +
+  geom_point(
+    data = county_pc2, 
+    aes(x = PC2, y = exp(predicted)), size = 2 #, shape=metro_area), size=2
+  ) +
+  geom_text_repel(
+    data = county_pc2,
+    aes(x = PC2, y = exp(predicted), label = county_state),
+    size=3.5, direction="both", force=40, segment.size=0.25
+  ) +
   scale_color_manual('', values = c('lightblue', 'darkblue')) +
   ylab('Relative Daily COVID19 Death Rate') +
   xlab('PC2') +
@@ -547,8 +732,8 @@ ggsave(
   width = 8,
   unit = 'in'
 )
-sessionInfo()
-pc2_boot_plot
+
+
 # PC3 bootstrapped estimates ---------------------------------------------------
 # purrr::map_dfr bind
 pc3_df <- boot_results_list %>%
@@ -556,11 +741,26 @@ pc3_df <- boot_results_list %>%
 
 pc3_orig <- data.frame(main_model_list$pc3$plotme)
 
+# county-specifc pc3
+county_pc3 <- main_model_list$county_pc3 %>% 
+  ungroup() %>% 
+  mutate(metro_area = factor(metro_area))
+
+
 pc3_boot_plot <- ggplot() +
   geom_line(data = pc3_df, aes(x=x, y=exp(ystar), group=iteration, color='Bootstrap'),
             alpha = 0.4, size = 0.1) +
   geom_line(data=pc3_orig, aes(x=x, y=exp(ystar), color = 'Original'), size = 0.8) +
   geom_hline(aes(yintercept = 1), color = 'red', linetype = 'dashed') +
+  geom_point(
+    data = county_pc3, 
+    aes(x = PC3, y = exp(predicted)), size = 2 #, shape=metro_area), size=2
+  ) +
+  geom_text_repel(
+    data = county_pc3,
+    aes(x = PC3, y = exp(predicted), label = county_state),
+    size=3.5, direction="both", force=40, segment.size=0.25
+  ) +
   scale_color_manual('', values = c('lightblue', 'darkblue')) +
   ylab('Relative Daily COVID19 Death Rate') +
   xlab('PC3') +
@@ -586,12 +786,26 @@ pc4_df <- boot_results_list %>%
 # pc original
 pc4_orig <- data.frame(main_model_list$pc4$plotme)
 
+# county-specifc pc3
+county_pc4 <- main_model_list$county_pc4 %>% 
+  ungroup() %>% 
+  mutate(metro_area = factor(metro_area))
+
 pc4_boot_plot <- ggplot() +
   geom_line(data = pc4_df, aes(x=x, y=exp(ystar), group=iteration, color='Bootstrap'),
             alpha = 0.4, size = 0.1) +
   geom_line(data=pc4_orig, aes(x=x, y=exp(ystar), color = 'Original'), size = 0.8) +
   geom_hline(aes(yintercept = 1), color = 'red', linetype = 'dashed') +
   scale_color_manual('', values = c('lightblue', 'darkblue')) +
+  geom_point(
+    data = county_pc4, 
+    aes(x = PC4, y = exp(predicted)), size = 2 #, shape=metro_area), size=2
+  ) +
+  geom_text_repel(
+    data = county_pc4,
+    aes(x = PC4, y = exp(predicted), label = county_state),
+    size=3.5, direction="both", force=10, segment.size=0.25
+  ) +
   ylab('Relative Daily COVID19 Death Rate') +
   xlab('PC4') +
   theme_minimal() +

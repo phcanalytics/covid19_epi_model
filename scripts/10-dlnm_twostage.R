@@ -82,7 +82,7 @@ S80 <- S70 <- S60 <- S50 <-S25 <- Sm10 <- S0 <- S5 <- S10 <- Sall
 # WARNING FOR PREDICTION BEYOND BOUNDARIES SUPPRESSED
 options(warn=-1)
 
-# LOOP FOR STATES
+# LOOP FOR FIPS
 for(i in seq(data)) {
 
   # PRINT

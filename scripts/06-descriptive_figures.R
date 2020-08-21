@@ -30,8 +30,9 @@ first_obs <- analysis_df %>%
 # Now break into 3x3 groups for the bivariate plots
 d <- expand.grid(x=1:3, y=1:3)
 
+
 # Break variables of interest into quantiles
-x.v <- quantile(first_obs$adult_obesity_v011, c(0.33,0.66,1))
+x.v <- quantile(first_obs$disease_diabetes_prevalence_v060, c(0.33,0.66,1))
 y.v <- quantile(first_obs$median_household_income_v063, c(0.33,0.66,1))
 
 # create appropriate labels for d
@@ -49,7 +50,7 @@ y_labs <- c(
 
 d <- merge(d,data.frame(x=1:3, xlabel = x_labs), by="x")
 d <- merge(d,data.frame(y=1:3, ylabel = y_labs), by="y")
-
+first_obs$dis
 # Grab the two variables to plot
 bivariates <- first_obs %>% 
   mutate(
@@ -58,11 +59,11 @@ bivariates <- first_obs %>%
       ifelse(median_household_income_v063 < y.v[2], 2, 3)
       ) ,
     x = ifelse(
-      adult_obesity_v011 < x.v[1],1,
-      ifelse(adult_obesity_v011 < x.v[2],2,3)
+      disease_diabetes_prevalence_v060 < x.v[1],1,
+      ifelse(disease_diabetes_prevalence_v060 < x.v[2],2,3)
     )  
   )   %>%
-  select(fips,county,state,adult_obesity_v011,median_household_income_v063,y,x) %>% 
+  select(fips,county,state,disease_diabetes_prevalence_v060,median_household_income_v063,y,x) %>% 
   # make variable, map colors
   mutate(map_colors = atan(y/x), alpha_colors=x+y)
 
@@ -109,7 +110,7 @@ legend_plot <- ggplot(
     plot.margin=margin(t=2,b=2,l=2, r=2)
     ) + 
   labs(
-    x = "Adult Obesity Prevalence %",
+    x = "Diabetes Prevalence %",
     y = "Median\nHousehold Income"
     )
 
@@ -197,7 +198,6 @@ sanfran_plot <- ggplot() +
     panel.border = element_rect(color = 'black', fill = NA, size = 0.5)
   )
 
-
 # los angeles ----
 losangeles_plot <- ggplot() +
   geom_sf(
@@ -217,7 +217,6 @@ losangeles_plot <- ggplot() +
     plot.title = element_text(hjust = 0.5),
     panel.border = element_rect(color = 'black', fill = NA, size = 0.5)
   )
-
 
 # seattle plot ----
 seattle_plot <- ggplot() +
@@ -322,19 +321,148 @@ meworleans_plot <- ggplot() +
     panel.border = element_rect(color = 'black', fill = NA, size = 0.5)
   )
 
+### Additional Metro Areas as of 2020-07-17
+phoenix_map <- ggplot() +
+  geom_sf(
+    data= plot_sf %>% filter(metro_area == 'Phoenix'), 
+    aes(fill=map_colors, alpha = alpha_colors)) +
+  coord_sf(datum = NA) +
+  scale_fill_gradient(
+    low = low_pal, 
+    high = high_pal,
+    na.value = 'white',
+    limits = c(min_val, max_val)
+  ) +
+  ggtitle('Phoenix') +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(hjust = 0.5),
+    panel.border = element_rect(color = 'black', fill = NA, size = 0.5)
+  )
+
+# tampa/orlando
+tampa_map <- ggplot() +
+  geom_sf(
+    data= plot_sf %>% filter(metro_area == 'Tampa-Orlando'), 
+    aes(fill=map_colors, alpha = alpha_colors)) +
+  coord_sf(datum = NA) +
+  scale_fill_gradient(
+    low = low_pal, 
+    high = high_pal,
+    na.value = 'white',
+    limits = c(min_val, max_val)
+  ) +
+  ggtitle('Tampa \nand Orlando') +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(hjust = 0.5),
+    panel.border = element_rect(color = 'black', fill = NA, size = 0.5)
+  )
+
+
+# miami
+miami_map <- ggplot() +
+  geom_sf(
+    data= plot_sf %>% filter(metro_area == 'Miami'), 
+    aes(fill=map_colors, alpha = alpha_colors)) +
+  coord_sf(datum = NA) +
+  scale_fill_gradient(
+    low = low_pal, 
+    high = high_pal,
+    na.value = 'white',
+    limits = c(min_val, max_val)
+  ) +
+  ggtitle('Miami') +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(hjust = 0.5),
+    panel.border = element_rect(color = 'black', fill = NA, size = 0.5)
+  )
+
+# el paso
+elpaso_map <- ggplot() +
+  geom_sf(
+    data= plot_sf %>% filter(metro_area == 'El Paso'), 
+    aes(fill=map_colors, alpha = alpha_colors)) +
+  coord_sf(datum = NA) +
+  scale_fill_gradient(
+    low = low_pal, 
+    high = high_pal,
+    na.value = 'white',
+    limits = c(min_val, max_val)
+  ) +
+  ggtitle('El Paso') +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(hjust = 0.5),
+    panel.border = element_rect(color = 'black', fill = NA, size = 0.5)
+  )
+
+# dallas
+dallas_map <- ggplot() +
+  geom_sf(
+    data= plot_sf %>% filter(metro_area == 'Dallas'), 
+    aes(fill=map_colors, alpha = alpha_colors)) +
+  coord_sf(datum = NA) +
+  scale_fill_gradient(
+    low = low_pal, 
+    high = high_pal,
+    na.value = 'white',
+    limits = c(min_val, max_val)
+  ) +
+  ggtitle('Dallas') +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(hjust = 0.5),
+    panel.border = element_rect(color = 'black', fill = NA, size = 0.5)
+  )
+
+# houston
+houston_map <- ggplot() +
+  geom_sf(
+    data= plot_sf %>% filter(metro_area == 'Houston'), 
+    aes(fill=map_colors, alpha = alpha_colors)) +
+  coord_sf(datum = NA) +
+  scale_fill_gradient(
+    low = low_pal, 
+    high = high_pal,
+    na.value = 'white',
+    limits = c(min_val, max_val)
+  ) +
+  ggtitle('Houston') +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(hjust = 0.5),
+    panel.border = element_rect(color = 'black', fill = NA, size = 0.5)
+  )
+
+
 # paper map --------------------------------------------------------------------
 
 # map in paper; uses cowplot to arrange grids
 paper_map <- ggdraw(xlim = c(0,1), ylim = c(0,1)) +
   draw_plot(us_plot, width = 1, height = 1, x = 0, y = 0) +
-  draw_plot(seattle_plot, width = 0.25, height = 0.25, x = 0.05, y = 0.67) +
-  draw_plot(sanfran_plot, width = 0.25, height = 0.25, x = 0.05, y = 0.43) +
-  draw_plot(losangeles_plot, width = 0.25, height = 0.25, x = 0.02, y = 0.12) +
-  draw_plot(chitown_plot, width = 0.25, height = 0.25, x = 0.43, y = 0.55) +
-  draw_plot(detroit_plot, width = 0.25, height = 0.25, x = 0.57, y = 0.39) +
-  draw_plot(meworleans_plot, width = 0.25, height = 0.25, x = 0.41, y = 0.28) +
-  draw_plot(nyc_plot, width = 0.25, height = 0.25, x = 0.78, y = 0.35) +
-  draw_plot(legend_plot, width = 0.25, height = 0.25, x = 0.75, y = 0) +
+  draw_plot(seattle_plot, width = 0.2, height = 0.2, x = 0.06, y = 0.75) +
+  draw_plot(sanfran_plot, width = 0.2, height = 0.2, x = 0.04, y = 0.52) +
+  draw_plot(losangeles_plot, width = 0.2, height = 0.2, x = -.02, y = 0.28) +
+  draw_plot(chitown_plot, width = 0.2, height = 0.2, x = 0.47, y = 0.55) +
+  draw_plot(detroit_plot, width = 0.2, height = 0.2, x = 0.65, y = 0.68) +
+  draw_plot(meworleans_plot, width = 0.2, height = 0.2, x = 0.51, y = 0.3) +
+  draw_plot(nyc_plot, width = 0.2, height = 0.2, x = 0.82, y = 0.41) +
+  # new metro areas
+  draw_plot(phoenix_map, width = 0.15, height = 0.15, x = 0.16, y = 0.41) +
+  draw_plot(tampa_map, width = 0.2, height = 0.2, x = 0.71, y = 0.2) +
+  draw_plot(miami_map, width = 0.2, height = 0.2, x = 0.7, y = 0.02) +
+  draw_plot(elpaso_map, width = 0.15, height = 0.15, x = 0.25, y = 0.35) +
+  draw_plot(houston_map, width = 0.2, height = 0.2, x = 0.45, y = 0.06) +
+  draw_plot(dallas_map, width = 0.15, height = 0.15, x = 0.4, y = 0.38) +
+  draw_plot(legend_plot, width = 0.25, height = 0.25, x = 0.05, y = 0) +
   draw_figure_label(label = 'A', size = 20, fontface = 'bold')
 
 

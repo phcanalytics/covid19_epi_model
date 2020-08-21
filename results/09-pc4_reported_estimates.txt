@@ -1,0 +1,11 @@
+[1] "#### PC 4 City Effect Estimates ####"
+# A tibble: 5 x 3
+  metro_area      min   max
+  <chr>         <dbl> <dbl>
+1 Chicago       0.967 2.24 
+2 Los Angeles   0.911 1.59 
+3 Miami         0.403 0.646
+4 New Orleans   0.705 2.04 
+5 Tampa-Orlando 0.350 0.695
+[1] "### SLOPE of PC4"
+[1] "Slope/Change log mortality rate of of PC4 for a 1 unit change in PC4: 0.31"
