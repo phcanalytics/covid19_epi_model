@@ -52,9 +52,9 @@ study_period <- nytimes %>%
     first_date = min(date),
     end_date = max(date)
   ) %>% 
-  # find first date 30 days prior to first death
+  # find first date config$max_lag days prior to first death
   mutate(
-    start_date = first_date - 30) %>% 
+    start_date = first_date - config$max_lag) %>% 
   select(state, county, fips, start_date, end_date) %>% 
   rowwise() %>% 
   do(

@@ -17,21 +17,23 @@ library(foreach)
 library(doParallel)
 library(parallel)
 
+# Read yaml config file --------------------------------------------------------
+config <- read_yaml('./scripts/config.yaml')
 
 # Read analysis dataframe
 analysis_df <- read_csv('./data/05-analysis_df.csv') %>% 
-  # starting at 30 days prior to time since first death in order to get lagged
-  # values 30 days prior
-  filter(time_since_first_death >= (-30)) %>% 
+  # starting at config$max_lag (60) days prior to time since first death in order to get lagged
+  # values config$max_lag (60) days prior 
+  filter(time_since_first_death >= (-(config$max_lag))) %>% 
   # code metro_state_county as factor
   mutate(metro_state_county = as.factor(metro_state_county))
 
 
-# build crossbasis for gam model for 30 day lagged mobility of retail and rec
+# build crossbasis for gam model for 60 day lagged mobility of retail and rec
 # called cbgam 
 cbgam <- crossbasis(
   analysis_df$retail_and_recreation_percent_change_from_baseline, 
-  lag = 30,
+  lag = config$max_lag,
   argvar = list(fun='cr', df=4), # using penalized spline 'cr'
   arglag = list(fun='cr', df=4),
   group = analysis_df$metro_state_county # makes sure I lag appropriately by metro/county
@@ -121,7 +123,7 @@ dlnm_pred_main <- crosspred(
   by=1,
   bylag=1,
   ci.level = 0.95,
-  cen=0
+  cen=config$ref_lag
 )
 
 
@@ -313,7 +315,7 @@ boot_results_list <- foreach(
     by=1,
     bylag=1,
     ci.level = 0.95,
-    cen=0,
+    cen=config$ref_lag,
   )
   
   # saving only dlnm fit to log link across prediction matrix

@@ -15,12 +15,15 @@ library(reshape2) # for plotting
 library(gridExtra) # grid alignments
 library(cowplot)
 
+# Read yaml config file --------------------------------------------------------
+config <- read_yaml('./scripts/config.yaml')
+
 # Read in analysis dataframe ---------------------------------------------------
 
 analysis_df <- read_csv('./data/05-analysis_df.csv') %>% 
-  # starting at 30 days prior to time since first death in order to get lagged
-  # values 30 days prior
-  filter(time_since_first_death >= (-30)) %>% 
+  # starting at config$max_lag (60) days prior to time since first death in order to get lagged
+  # values config$max_lag (60) days prior
+  filter(time_since_first_death >= (-(config$max_lag))) %>% 
   # code metro_state_county as factor
   mutate(metro_state_county = as.factor(metro_state_county))
 
@@ -32,17 +35,17 @@ analysis_df <- read_csv('./data/05-analysis_df.csv') %>%
 
 # Note to use the crossbasis function from the dlmn package to create the lagged
 # values and create the crossbasis between basis for lagged mobility and 
-# basis for mobility we kept 30 days prior to first death for mobility
+# basis for mobility we kept config$max_lag (60) days prior to first death for mobility
 # so that for each county of interest, there should be complete mobility lagged
 # matrix even though there will be missing values in the matrix that will
 # be subsequently exluded in the gam modeling process
 
 
-# build crossbasis for gam model for 30 day lagged mobility of retail and rec
+# build crossbasis for gam model for config$max_lag (60) day lagged mobility of retail and rec
 # called cbgam 
 cbgam <- crossbasis(
   analysis_df$retail_and_recreation_percent_change_from_baseline, 
-  lag = 30,
+  lag = config$max_lag,
   argvar = list(fun='cr', df=4), # using penalized spline 'cr'
   arglag = list(fun='cr', df=4),
   group = analysis_df$metro_state_county # makes sure I lag appropriately by metro/county
@@ -519,7 +522,7 @@ dlnm_pred <- crosspred(
   cbgam, # cross basis object 
   dlnm.main.gam, # gam model with dlmn matrix 
   at=10:-80, # discussion on range to model
-  cen = 0, # cender at 0
+  cen = config$ref_lag, # cender at 0
   ci.level=0.95 # modeling at .95 CI
 )
 
@@ -548,7 +551,7 @@ dlnm_pred <- crosspred(
   by=1,
   bylag=0.2,
   ci.level = 0.95,
-  cen=0,
+  cen=config$ref_lag,
 )
 
 
@@ -637,17 +640,17 @@ ggsave(
 # dlmn model excluding nyc
 
 nonyc_df <- read_csv('./data/05-sensitivity_analysis_nonyc_df.csv') %>% 
-  # starting at 30 days prior to time since first death in order to get lagged
-  # values 30 days prior
-  filter(time_since_first_death >= (-30)) %>% 
+  # starting at config$max_lag (60) days prior to time since first death in order to get lagged
+  # values config$max_lag (60) days prior
+  filter(time_since_first_death >= (-(config$max_lag))) %>% 
   # code metro_state_county as factor
   mutate(metro_state_county = as.factor(metro_state_county))
 
-# build crossbasis for gam model for 30 day lagged mobility of retail and rec
+# build crossbasis for gam model for config$max_lag (60) day lagged mobility of retail and rec
 # called nonyc_cbgam 
 nonyc_cbgam <- crossbasis(
   nonyc_df$retail_and_recreation_percent_change_from_baseline, 
-  lag = 30,
+  lag = config$max_lag,
   argvar = list(fun='cr', df=4), # using penalized spline 'cr'
   arglag = list(fun='cr', df=4),
   group = nonyc_df$metro_state_county # makes sure I lag appropriately by metro/county
@@ -792,7 +795,7 @@ nonyc_dlnm_pred <- crosspred(
   nonyc_cbgam, # cross basis object 
   nonyc.dlnm.main.gam, # gam model with dlmn matrix 
   at=10:-80, # discussion on range to model
-  cen = 0, # cender at 0
+  cen = config$ref_lag, # center at config$ref_lag (-25)
   ci.level=0.95 # modeling at .95 CI
 )
 
@@ -893,7 +896,7 @@ lagged_mobility_nonyc <- ggplot(
     size=guide_legend(title='Model')
   ) +
   theme_classic() +
-  scale_x_continuous(expand=c(0,0), limits=c(0,30)) +
+  scale_x_continuous(expand=c(0,0), limits=c(0,config$max_lag)) +
   scale_y_continuous(expand=c(0,0), limits=c(0.6,1.5)) +
   theme(strip.background = element_blank()) +
   theme(legend.position = "bottom") 
@@ -987,7 +990,7 @@ ggsave(
 
 # Specific estimates to report in paper
 rr_estimates_paper_bothmods <- lagged_estimates_bothmods %>% 
-  filter(mobility %in% c("-80" ,"-50", "-25", "-10", "10") & lag %in% c(0,15,30)) %>% 
+  filter(mobility %in% c("-80" ,"-50", "-25", "-10", "10") & lag %in% c(0,15,30,60)) %>% 
   dplyr::select(-type) %>% 
   rename(
     relative_death_rate = RR, 
@@ -1030,7 +1033,7 @@ fixed_ts_df <- analysis_df %>%
 # build crossbasis for fixed time series
 fix_ts_cbgam <- crossbasis(
   fixed_ts_df$retail_and_recreation_percent_change_from_baseline, 
-  lag = 30,
+  lag = config$max_lag,
   argvar = list(fun='cr', df=4), # using penalized spline ps; best performer in gasparini 2017
   arglag = list(fun='cr', df=4),
   group = fixed_ts_df$metro_state_county # makes sure I lag appropriately by metro/county
@@ -1090,7 +1093,7 @@ fixed_ts_pred <- crosspred(
   fix_ts_cbgam, # cross basis object 
   fixts.gam, # gam model with dlmn matrix 
   at=10:-80, # discussion on range to model
-  cen = 0, # cender at 0
+  cen = config$ref_lag, # cender at 0
   ci.level=0.95 # modeling at .95 CI
 )
 
@@ -1125,7 +1128,11 @@ weekly_median_lag <- analysis_df %>%
     retail_rec_wk_lag1 = lag(retail_rec_wk_lag0, n = 1, order_by = wk),
     retail_rec_wk_lag2 = lag(retail_rec_wk_lag0, n = 2, order_by = wk),
     retail_rec_wk_lag3 = lag(retail_rec_wk_lag0, n = 3, order_by = wk),
-    retail_rec_wk_lag4 = lag(retail_rec_wk_lag0, n = 4, order_by = wk)
+    retail_rec_wk_lag4 = lag(retail_rec_wk_lag0, n = 4, order_by = wk),
+    retail_rec_wk_lag5 = lag(retail_rec_wk_lag0, n = 5, order_by = wk),
+    retail_rec_wk_lag6 = lag(retail_rec_wk_lag0, n = 6, order_by = wk),
+    retail_rec_wk_lag7 = lag(retail_rec_wk_lag0, n = 7, order_by = wk),
+    retail_rec_wk_lag8 = lag(retail_rec_wk_lag0, n = 8, order_by = wk)
   )
 
 
@@ -1152,6 +1159,10 @@ simplelag.gam <- gam(
     s(retail_rec_wk_lag2, bs="cr", k=5) +
     s(retail_rec_wk_lag3, bs="cr", k=5) +
     s(retail_rec_wk_lag4, bs="cr", k=5) +
+    s(retail_rec_wk_lag5, bs="cr", k=5) +
+    s(retail_rec_wk_lag6, bs="cr", k=5) +
+    s(retail_rec_wk_lag7, bs="cr", k=5) +
+    s(retail_rec_wk_lag8, bs="cr", k=5) +
     offset(log(population_v051)), 
   data=analysis_df_simplelag,
   family="quasipoisson",

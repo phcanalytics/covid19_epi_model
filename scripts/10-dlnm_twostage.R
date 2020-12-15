@@ -16,11 +16,15 @@ library(dlnm)
 library(mvmeta) # multivariate meta by gasparrini for two stage lag
 library(mgcv)
 
+# Read yaml config file --------------------------------------------------------
+config <- read_yaml('./scripts/config.yaml')
+
+# Read data file --------------------------------------------------------
 
 analysis_df <- read_csv('./data/05-analysis_df.csv') %>% 
-  # starting at 30 days prior to time since first death in order to get lagged
-  # values 30 days prior
-  filter(time_since_first_death >= (-30)) %>% 
+  # starting at config$max_lag (60) days prior to time since first death in order to get lagged
+  # values config$max_lag (60) days prior
+  filter(time_since_first_death >= (-(config$max_lag))) %>% 
   # code metro_state_county as factor
   mutate(metro_state_county = as.factor(metro_state_county))
 
@@ -49,7 +53,7 @@ ranges <- t(
 # MAIN MODEL
 # - PREDICTOR SPACE: QUADRATIC SPLINE WITH SPECIFIC KNOT SELECTION
 # - LAG SPACE: NATURAL CUBIC SPLINE WITH DF AT EQUALLY-SPACED LOG-VALUES
-lag <- c(0,30)
+lag <- c(0,config$max_lag)
 bound <- colMeans(ranges)
 
 # Define argument function for cubic
@@ -107,16 +111,16 @@ for(i in seq(data)) {
                   sub)
     
     # REDUCTION TO SUMMARY ASSOCIATIONS -----
-    crall <- crossreduce(cb,mfirst,cen=-25)
-    cr80 <- crossreduce(cb,mfirst,type="var",value=-80,cen=-25)
-    cr70 <- crossreduce(cb,mfirst,type="var",value=-70,cen=-25)
-    cr60 <- crossreduce(cb,mfirst,type="var",value=-60,cen=-25)
-    cr50 <- crossreduce(cb,mfirst,type="var",value=-50,cen=-25)
-    cr25 <- crossreduce(cb,mfirst,type="var",value=-25,cen=-25)
-    crm10 <- crossreduce(cb,mfirst,type="var",value=-10,cen=-25)
-    cr0 <- crossreduce(cb,mfirst,type="var",value=0,cen=-25)
-    cr5 <- crossreduce(cb,mfirst,type="var",value=5,cen=-25)
-    cr10 <- crossreduce(cb,mfirst,type="var",value=10,cen=-25)
+    crall <- crossreduce(cb,mfirst,cen=config$ref_lag)
+    cr80 <- crossreduce(cb,mfirst,type="var",value=-80,cen=config$ref_lag)
+    cr70 <- crossreduce(cb,mfirst,type="var",value=-70,cen=config$ref_lag)
+    cr60 <- crossreduce(cb,mfirst,type="var",value=-60,cen=config$ref_lag)
+    cr50 <- crossreduce(cb,mfirst,type="var",value=-50,cen=config$ref_lag)
+    cr25 <- crossreduce(cb,mfirst,type="var",value=-25,cen=config$ref_lag)
+    crm10 <- crossreduce(cb,mfirst,type="var",value=-10,cen=config$ref_lag)
+    cr0 <- crossreduce(cb,mfirst,type="var",value=0,cen=config$ref_lag)
+    cr5 <- crossreduce(cb,mfirst,type="var",value=5,cen=config$ref_lag)
+    cr10 <- crossreduce(cb,mfirst,type="var",value=10,cen=config$ref_lag)
     
     # STORE THE RESULTS ----
     
@@ -195,80 +199,80 @@ summary(mv10)
 
 xvar <- seq(bound[1],bound[2],by=1)
 bvar <- do.call("onebasis",c(list(x=xvar),attr(cb,"argvar")))
-# lag over 30 days 
-xlag <- 0:300/10
+# lag over config$max_lag (60) days 
+xlag <- 0:(config$max_lag*10)/10
 blag <- do.call("onebasis",c(list(x=xlag),attr(cb,"arglag")))
 
 # County-SPECIFIC FIRST-STAGE SUMMARIES -----
 regall <- lapply(seq(nrow(yall)),
                  function(i) crosspred(
-                   bvar,coef=yall[i,], vcov=Sall[[i]],model.link="log",cen=-25))
+                   bvar,coef=yall[i,], vcov=Sall[[i]],model.link="log",cen=config$ref_lag))
 
 reg80 <- lapply(seq(nrow(y80)),
                 function(i) crosspred(
-                  blag,coef=y80[i,], vcov=S80[[i]], model.link="log",cen=-25))
+                  blag,coef=y80[i,], vcov=S80[[i]], model.link="log",cen=config$ref_lag))
 
 reg70 <- lapply(seq(nrow(y70)),
                 function(i) crosspred(
-                  blag,coef=y70[i,], vcov=S70[[i]], model.link="log",cen=-25))
+                  blag,coef=y70[i,], vcov=S70[[i]], model.link="log",cen=config$ref_lag))
 
 reg60 <- lapply(seq(nrow(y60)),
                 function(i) crosspred(
-                  blag,coef=y60[i,], vcov=S60[[i]], model.link="log",cen=-25))
+                  blag,coef=y60[i,], vcov=S60[[i]], model.link="log",cen=config$ref_lag))
 
 reg50 <- lapply(seq(nrow(y50)),
                 function(i) crosspred(
-                  blag,coef=y50[i,], vcov=S50[[i]], model.link="log",cen=-25))
+                  blag,coef=y50[i,], vcov=S50[[i]], model.link="log",cen=config$ref_lag))
 
 reg25 <- lapply(seq(nrow(y25)),
                 function(i) crosspred(
-                  blag,coef=y25[i,], vcov=S25[[i]], model.link="log",cen=-25))
+                  blag,coef=y25[i,], vcov=S25[[i]], model.link="log",cen=config$ref_lag))
 
 regm10 <- lapply(seq(nrow(ym10)),
                 function(i) crosspred(
-                  blag,coef=ym10[i,], vcov=Sm10[[i]], model.link="log",cen=-25))
+                  blag,coef=ym10[i,], vcov=Sm10[[i]], model.link="log",cen=config$ref_lag))
 
 reg0 <- lapply(seq(nrow(y0)),
                function(i) 
-                 crosspred(blag,coef=y0[i,], vcov=S0[[i]],model.link="log",cen=-25))
+                 crosspred(blag,coef=y0[i,], vcov=S0[[i]],model.link="log",cen=config$ref_lag))
 
 reg5 <- lapply(seq(nrow(y5)),
                function(i) 
-                 crosspred(blag,coef=y5[i,], vcov=S5[[i]],model.link="log",cen=-25))
+                 crosspred(blag,coef=y5[i,], vcov=S5[[i]],model.link="log",cen=config$ref_lag))
 
 reg10 <- lapply(seq(nrow(y10)),
                function(i) 
-                 crosspred(blag,coef=y10[i,], vcov=S10[[i]],model.link="log",cen=-25))
+                 crosspred(blag,coef=y10[i,], vcov=S10[[i]],model.link="log",cen=config$ref_lag))
 
 # PREDICTION FOR A GRID OF MOBILITY AND LAG VALUES
 
 # PREDICTOR-SPECIFIC SUMMARIES FOR Mobility (MAIN MODEL)
 cp80 <- crosspred(blag,coef=coef(mv80),vcov=vcov(mv80),
-                  model.link="log",at=0:300/10,cen=-25)
+                  model.link="log",at=0:(config$max_lag*10)/10,cen=config$ref_lag)
 
 cp70 <- crosspred(blag,coef=coef(mv70),vcov=vcov(mv70),
-                  model.link="log",at=0:300/10,cen=-25)
+                  model.link="log",at=0:(config$max_lag*10)/10,cen=config$ref_lag)
 
 cp60 <- crosspred(blag,coef=coef(mv60),vcov=vcov(mv60),
-                  model.link="log",at=0:300/10,cen=-25)
+                  model.link="log",at=0:(config$max_lag*10)/10,cen=config$ref_lag)
 
 cp50 <- crosspred(blag,coef=coef(mv50),vcov=vcov(mv50),
-                  model.link="log",at=0:300/10,cen=-25)
+                  model.link="log",at=0:(config$max_lag*10)/10,cen=config$ref_lag)
 
 cp25 <- crosspred(blag,coef=coef(mv25),vcov=vcov(mv25),
-                  model.link="log",at=0:300/10,cen=-25)
+                  model.link="log",at=0:(config$max_lag*10)/10,cen=config$ref_lag)
 
 cpm10 <- crosspred(blag,coef=coef(mvm10),vcov=vcov(mvm10),
-                  model.link="log",at=0:300/10,cen=-25)
+                  model.link="log",at=0:(config$max_lag*10)/10,cen=config$ref_lag)
 
 cp0 <- crosspred(blag,coef=coef(mv0),vcov=vcov(mv0),
-                 model.link="log",at=0:300/10,cen=-25)
+                 model.link="log",at=0:(config$max_lag*10)/10,cen=config$ref_lag)
 
 cp5 <- crosspred(blag,coef=coef(mv5),vcov=vcov(mv5),
-                 model.link="log",at=0:300/10,cen=-25)
+                 model.link="log",at=0:(config$max_lag*10)/10,cen=config$ref_lag)
 
 cp10 <- crosspred(blag,coef=coef(mv10),vcov=vcov(mv10),
-                 model.link="log",at=0:300/10,cen=-25)
+                 model.link="log",at=0:(config$max_lag*10)/10,cen=config$ref_lag)
 
 
 # Plot of DLNM pooled results

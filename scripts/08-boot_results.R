@@ -12,6 +12,9 @@ library(reshape2) # for plotting
 library(gridExtra) # grid alignments
 library(cowplot)
 
+# Read yaml config file --------------------------------------------------------
+config <- read_yaml('./scripts/config.yaml')
+
 # Read in data for results and plots -------------------------------------------
 # load boostrapped list and main model list
 load(file = './data/07-boot_results_list.RData')
@@ -501,7 +504,7 @@ dlnm_plot <- ggplot() +
     )
   ) +  
   theme_classic() +
-  scale_x_continuous(expand=c(0,0), limits=c(0,30)) +
+  scale_x_continuous(expand=c(0,0), limits=c(0,config$max_lag)) +
   scale_y_continuous(expand=c(0,0), limits=c(0.7,1.5)) +
   theme(strip.background = element_blank(),
         panel.spacing = unit(1, "lines"),
@@ -532,7 +535,7 @@ ggsave(
 # DLNM estimates reported in text ----------------------------------------------
 # Specific estimates to report in paper
 rr_estimates_paper <- dlnm_data_plot %>% 
-  filter(mobility %in% c("-80", "-50", "-25", "-10", "10") & lag_day %in% c(0,15,30)) %>% 
+  filter(mobility %in% c("-80", "-50", "-25", "-10", "10") & lag_day %in% c(0,15,30,60)) %>% 
   select(mobility, lag_day, fit, lower_95, upper_95) %>% 
   # exp the lower bounds
   mutate_at(vars(fit, lower_95, upper_95), ~round(exp(.),2)) %>% 
@@ -587,7 +590,7 @@ dlnm_all_boots_plot <- ggplot() +
     )
   ) +  
   theme_classic() +
-  scale_x_continuous(expand=c(0,0), limits=c(0,30)) +
+  scale_x_continuous(expand=c(0,0), limits=c(0,config$max_lag)) +
   scale_y_continuous(expand=c(0,0), limits=c(0.7,1.5)) +
   theme(strip.background = element_blank(),
         panel.spacing = unit(1, "lines"),
