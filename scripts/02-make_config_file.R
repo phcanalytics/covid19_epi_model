@@ -118,7 +118,9 @@ rwj_list <- list(
 config_list <- list(
   study_window = study_window, 
   study_fips = study_fips,
-  rwj = rwj_list
+  rwj = rwj_list,
+  max_lag = max_lag,
+  ref_lag = ref_lag
   )
 
 print(config_list)
