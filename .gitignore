@@ -2,6 +2,8 @@
 *timeseries*.csv
 # ignore big data lists for bootstraps
 *.RData
+# ignore analysis dataframe
+*analysis*.csv
 
 # Ignore Rplot.pdf
 Rplots.pdf
