@@ -13,9 +13,9 @@ library(yaml)
 
 # Number of bootsraps to run
 
-# setting end date to '2020-11-30' for manuscript
+# setting end date to '2020-12-06' for updates
 
-end_date <- '2020-11-30'
+end_date <- '2020-12-06'
 ####
 # Commented out code to use last date of google mobility as end date for paper 
 # taking last date mobility is available
@@ -31,6 +31,12 @@ end_date <- '2020-11-30'
 study_window <- list(
   end_date = as.character(end_date)
 )
+
+# add maximum lag
+max_lag <- 60
+
+# add reference lag for mobility
+ref_lag <- -25
 
 # Metropolitan counties of interest --------------------------------------------
 # study fips 
