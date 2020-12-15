@@ -25,7 +25,6 @@ analysis_df <- read_csv('./data/05-analysis_df.csv') %>%
   mutate(metro_state_county = as.factor(metro_state_county))
 
 
-
 # Two-stage meta analysis; probably going to be messy with counties ------------
 fips <- unique(analysis_df$fips)
 
@@ -108,16 +107,16 @@ for(i in seq(data)) {
                   sub)
     
     # REDUCTION TO SUMMARY ASSOCIATIONS -----
-    crall <- crossreduce(cb,mfirst,cen=0)
-    cr80 <- crossreduce(cb,mfirst,type="var",value=-80,cen=0)
-    cr70 <- crossreduce(cb,mfirst,type="var",value=-70,cen=0)
-    cr60 <- crossreduce(cb,mfirst,type="var",value=-60,cen=0)
-    cr50 <- crossreduce(cb,mfirst,type="var",value=-50,cen=0)
-    cr25 <- crossreduce(cb,mfirst,type="var",value=-25,cen=0)
-    crm10 <- crossreduce(cb,mfirst,type="var",value=-10,cen=0)
-    cr0 <- crossreduce(cb,mfirst,type="var",value=0,cen=0)
-    cr5 <- crossreduce(cb,mfirst,type="var",value=5,cen=0)
-    cr10 <- crossreduce(cb,mfirst,type="var",value=10,cen=0)
+    crall <- crossreduce(cb,mfirst,cen=-25)
+    cr80 <- crossreduce(cb,mfirst,type="var",value=-80,cen=-25)
+    cr70 <- crossreduce(cb,mfirst,type="var",value=-70,cen=-25)
+    cr60 <- crossreduce(cb,mfirst,type="var",value=-60,cen=-25)
+    cr50 <- crossreduce(cb,mfirst,type="var",value=-50,cen=-25)
+    cr25 <- crossreduce(cb,mfirst,type="var",value=-25,cen=-25)
+    crm10 <- crossreduce(cb,mfirst,type="var",value=-10,cen=-25)
+    cr0 <- crossreduce(cb,mfirst,type="var",value=0,cen=-25)
+    cr5 <- crossreduce(cb,mfirst,type="var",value=5,cen=-25)
+    cr10 <- crossreduce(cb,mfirst,type="var",value=10,cen=-25)
     
     # STORE THE RESULTS ----
     
@@ -203,73 +202,73 @@ blag <- do.call("onebasis",c(list(x=xlag),attr(cb,"arglag")))
 # County-SPECIFIC FIRST-STAGE SUMMARIES -----
 regall <- lapply(seq(nrow(yall)),
                  function(i) crosspred(
-                   bvar,coef=yall[i,], vcov=Sall[[i]],model.link="log",cen=0))
+                   bvar,coef=yall[i,], vcov=Sall[[i]],model.link="log",cen=-25))
 
 reg80 <- lapply(seq(nrow(y80)),
                 function(i) crosspred(
-                  blag,coef=y80[i,], vcov=S80[[i]], model.link="log",cen=0))
+                  blag,coef=y80[i,], vcov=S80[[i]], model.link="log",cen=-25))
 
 reg70 <- lapply(seq(nrow(y70)),
                 function(i) crosspred(
-                  blag,coef=y70[i,], vcov=S70[[i]], model.link="log",cen=0))
+                  blag,coef=y70[i,], vcov=S70[[i]], model.link="log",cen=-25))
 
 reg60 <- lapply(seq(nrow(y60)),
                 function(i) crosspred(
-                  blag,coef=y60[i,], vcov=S60[[i]], model.link="log",cen=0))
+                  blag,coef=y60[i,], vcov=S60[[i]], model.link="log",cen=-25))
 
 reg50 <- lapply(seq(nrow(y50)),
                 function(i) crosspred(
-                  blag,coef=y50[i,], vcov=S50[[i]], model.link="log",cen=0))
+                  blag,coef=y50[i,], vcov=S50[[i]], model.link="log",cen=-25))
 
 reg25 <- lapply(seq(nrow(y25)),
                 function(i) crosspred(
-                  blag,coef=y25[i,], vcov=S25[[i]], model.link="log",cen=0))
+                  blag,coef=y25[i,], vcov=S25[[i]], model.link="log",cen=-25))
 
 regm10 <- lapply(seq(nrow(ym10)),
                 function(i) crosspred(
-                  blag,coef=ym10[i,], vcov=Sm10[[i]], model.link="log",cen=0))
+                  blag,coef=ym10[i,], vcov=Sm10[[i]], model.link="log",cen=-25))
 
 reg0 <- lapply(seq(nrow(y0)),
                function(i) 
-                 crosspred(blag,coef=y0[i,], vcov=S0[[i]],model.link="log",cen=0))
+                 crosspred(blag,coef=y0[i,], vcov=S0[[i]],model.link="log",cen=-25))
 
 reg5 <- lapply(seq(nrow(y5)),
                function(i) 
-                 crosspred(blag,coef=y5[i,], vcov=S5[[i]],model.link="log",cen=0))
+                 crosspred(blag,coef=y5[i,], vcov=S5[[i]],model.link="log",cen=-25))
 
 reg10 <- lapply(seq(nrow(y10)),
                function(i) 
-                 crosspred(blag,coef=y10[i,], vcov=S10[[i]],model.link="log",cen=0))
+                 crosspred(blag,coef=y10[i,], vcov=S10[[i]],model.link="log",cen=-25))
 
 # PREDICTION FOR A GRID OF MOBILITY AND LAG VALUES
 
 # PREDICTOR-SPECIFIC SUMMARIES FOR Mobility (MAIN MODEL)
 cp80 <- crosspred(blag,coef=coef(mv80),vcov=vcov(mv80),
-                  model.link="log",at=0:300/10,cen=0)
+                  model.link="log",at=0:300/10,cen=-25)
 
 cp70 <- crosspred(blag,coef=coef(mv70),vcov=vcov(mv70),
-                  model.link="log",at=0:300/10,cen=0)
+                  model.link="log",at=0:300/10,cen=-25)
 
 cp60 <- crosspred(blag,coef=coef(mv60),vcov=vcov(mv60),
-                  model.link="log",at=0:300/10,cen=0)
+                  model.link="log",at=0:300/10,cen=-25)
 
 cp50 <- crosspred(blag,coef=coef(mv50),vcov=vcov(mv50),
-                  model.link="log",at=0:300/10,cen=0)
+                  model.link="log",at=0:300/10,cen=-25)
 
 cp25 <- crosspred(blag,coef=coef(mv25),vcov=vcov(mv25),
-                  model.link="log",at=0:300/10,cen=0)
+                  model.link="log",at=0:300/10,cen=-25)
 
 cpm10 <- crosspred(blag,coef=coef(mvm10),vcov=vcov(mvm10),
-                  model.link="log",at=0:300/10,cen=0)
+                  model.link="log",at=0:300/10,cen=-25)
 
 cp0 <- crosspred(blag,coef=coef(mv0),vcov=vcov(mv0),
-                 model.link="log",at=0:300/10,cen=0)
+                 model.link="log",at=0:300/10,cen=-25)
 
 cp5 <- crosspred(blag,coef=coef(mv5),vcov=vcov(mv5),
-                 model.link="log",at=0:300/10,cen=0)
+                 model.link="log",at=0:300/10,cen=-25)
 
 cp10 <- crosspred(blag,coef=coef(mv10),vcov=vcov(mv10),
-                 model.link="log",at=0:300/10,cen=0)
+                 model.link="log",at=0:300/10,cen=-25)
 
 
 # Plot of DLNM pooled results
@@ -302,7 +301,7 @@ gam_lag_plot <- ggplot() +
   theme_minimal() +
   theme(legend.position = 'bottom')
 
-
+gam_lag_plot
 # NOTE WILL PROBABLY DELETE THE SECOND VERSION OF BLOCK BOOT SO THIS WILL BECOME SCRIPT 10
 # save gam plot
 ggsave(
@@ -314,3 +313,4 @@ ggsave(
 )
 
 print('Done with 2-stage dlnm')
+

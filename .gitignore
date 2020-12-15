@@ -3,7 +3,7 @@
 # ignore big data lists for bootstraps
 *.RData
 # ignore analysis dataframe
-*analysis*.csv
+*.csv
 
 # Ignore Rplot.pdf
 Rplots.pdf
