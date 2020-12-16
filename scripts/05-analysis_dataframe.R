@@ -37,7 +37,12 @@ analysis_df <- master_ts %>%
   group_by(fips) %>%
   mutate_at(
     vars(
-      retail_and_recreation_percent_change_from_baseline
+      retail_and_recreation_percent_change_from_baseline,
+      grocery_and_pharmacy_percent_change_from_baseline,
+      parks_percent_change_from_baseline,
+      transit_stations_percent_change_from_baseline,
+      workplaces_percent_change_from_baseline,
+      residential_percent_change_from_baseline
     ),
     list(
       ~ imputeTS::na_ma(., k = 5, weighting = "linear")
@@ -132,7 +137,12 @@ nonyc_df <- master_ts %>%
   group_by(fips) %>%
   mutate_at(
     vars(
-      retail_and_recreation_percent_change_from_baseline
+      retail_and_recreation_percent_change_from_baseline,
+      grocery_and_pharmacy_percent_change_from_baseline,
+      parks_percent_change_from_baseline,
+      transit_stations_percent_change_from_baseline,
+      workplaces_percent_change_from_baseline,
+      residential_percent_change_from_baseline
     ),
     list(
       ~ imputeTS::na_ma(., k = 5, weighting = "linear")
