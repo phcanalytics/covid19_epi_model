@@ -8,6 +8,7 @@
 # library 
 library(tidyverse)
 library(yaml)
+library(wesanderson)
 
 # Read data --------------------------------------------------------------------
 # load config file
