@@ -31,7 +31,7 @@ analysis_df <- read_csv('./data/05-analysis_df.csv') %>%
 
 # build crossbasis for gam model for 60 day lagged mobility of retail and rec
 # called cbgam 
-cbgam <- crossbasis(
+retail_basis <- crossbasis(
   analysis_df$retail_and_recreation_percent_change_from_baseline, 
   lag = config$max_lag,
   argvar = list(fun='cr', df=4), # using penalized spline 'cr'
@@ -41,13 +41,42 @@ cbgam <- crossbasis(
 
 
 # penalize the crossbasis splines
-cbgamPen <- cbPen(cbgam) 
+retail_basisPen <- cbPen(retail_basis) 
+
+# ADD NEW MOBILITY CATEGORIES: build cross-basis for each
+
+workplace_basis <- crossbasis(
+  analysis_df$workplaces_percent_change_from_baseline, 
+  lag = config$max_lag,
+  argvar = list(fun='cr', df=4), # using penalized spline 'cr'
+  arglag = list(fun='cr', df=4),
+  group = analysis_df$metro_state_county # makes sure I lag appropriately by metro/county
+)
+
+
+# penalize the crossbasis splines
+workplacePen <- cbPen(workplace_basis) 
+
+# Another category
+parks_basis <- crossbasis(
+  analysis_df$parks_percent_change_from_baseline, 
+  lag = config$max_lag,
+  argvar = list(fun='cr', df=4), # using penalized spline 'cr'
+  arglag = list(fun='cr', df=4),
+  group = analysis_df$metro_state_county # makes sure I lag appropriately by metro/county
+)
+
+
+# penalize the crossbasis splines
+parksPen <- cbPen(parks_basis) 
 
 # 1. Fit GAM --------------------------------------------------------------
 
-dlnm.main.gam <- gam(
+dlnm.main.gam_multimob3 <- gam(
   daily_deaths ~
-    cbgam + # this is the lag matrix 
+    retail_basis + # this is the lag matrix 
+    #workplace_basis +
+    parks_basis + 
     s(time_since_first_death) + 
     s(time_since_first_death, metro_state_county, bs=c("fs")) + # global smoother
     s(PC1, bs="cr", k=5) +
@@ -56,7 +85,9 @@ dlnm.main.gam <- gam(
     s(PC4, bs="cr", k=5) +
     offset(log(population_v051)), 
   data=analysis_df,
-  paraPen=list(cbgam=cbgamPen),# this applies the penalty to the lagged matrix
+  paraPen=list(retail_basis=retail_basisPen,
+              # workplace_basis=workplacePen,
+               parks_basis=parksPen),# this applies the penalty to the lagged matrix
   family="quasipoisson",
   method="REML"
 )
@@ -116,9 +147,31 @@ county_pc4_pred <- analysis_df %>%
   mutate(county_state=paste(county,state.abb,sep=", "))
 
 # DLNM output for main model
-dlnm_pred_main <- crosspred(
-  cbgam,
-  dlnm.main.gam,
+dlnm_pred_retail <- crosspred(
+  retail_basis,
+  dlnm.main.gam_multimob3,
+  at=10:-80,
+  by=1,
+  bylag=1,
+  ci.level = 0.95,
+  cen=config$ref_lag
+)
+
+# DLNM output for second mobility category
+dlnm_pred_workplace <- crosspred(
+  workplace_basis,
+  dlnm.main.gam_multimob2,
+  at=10:-80,
+  by=1,
+  bylag=1,
+  ci.level = 0.95,
+  cen=config$ref_lag
+)
+
+# DLNM output for third mobility category
+dlnm_pred_parks <- crosspred(
+  parks_basis,
+  dlnm.main.gam_multimob3,
   at=10:-80,
   by=1,
   bylag=1,
