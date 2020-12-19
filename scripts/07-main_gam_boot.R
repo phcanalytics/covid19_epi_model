@@ -66,9 +66,159 @@ parks_basis <- crossbasis(
   group = analysis_df$metro_state_county # makes sure I lag appropriately by metro/county
 )
 
-
 # penalize the crossbasis splines
 parksPen <- cbPen(parks_basis) 
+
+
+## Ryan testing stuff ----
+
+# dimension of parks basis not missing data
+rbasis_nomiss <- retail_basis[complete.cases(retail_basis),]
+
+plot(rbasis_nomiss[1,])
+# 16 columns
+dim(rbasis_nomiss)
+# i think this is the first set of values the basis transforms; reversing so it's in order
+retail_example <- pred_df$retail_and_recreation_percent_change_from_baseline[1:60]
+
+
+dim <- dim(as.matrix(analysis_df$retail_and_recreation_percent_change_from_baseline))
+check <- onebasis(analysis_df$retail_and_recreation_percent_change_from_baseline, fun = 'cr', df = 4)
+
+attributes(check)$S
+var_basis
+summary(analysis_df$retail_and_recreation_percent_change_from_baseline)
+
+# get out basis for lag and variable
+attributes(retail_basis)
+# same obs
+plot(round(retail_basis[61,],1))
+plot(rev(retail_example))
+rbasis_nomiss[1,]
+
+?crossbasis
+
+analysis_df[61,]$retail_and_recreation_percent_change_from_baseline
+basislag <- attributes(retail_basis)$arglag$S
+basisvar <- attributes(retail_basis)$argvar$S
+
+basislag[, 1] 
+
+
+crossbasis <- matrix(0, nrow = dim[1], ncol = ncol(basisvar) * 
+                       ncol(basislag))
+
+seqlag <-function(lag,by=1) seq(from=lag[1],to=lag[2],by=by)
+basisvar[,1]
+lag1 <- mklag(60)
+group = NULL
+
+
+rev(retail_example)
+basislag
+
+basisvar
+?tsModel::Lag
+tsModel::Lag(basisvar[,1], seqlag(lag1))
+as.matrix(tsModel::Lag(basisvar[,1]), seqlag(lag1))
+
+# extract existing lag basis matrix
+basislag <- attributes(retail_basis)$arglag$S
+basislag
+# extract existing variable basis matrix
+basisvar <- attributes(retail_basis)$argvar$S
+# kronecker product
+(basisvar %x% basislag)
+
+### Note suggest figuring out the function below and 
+# applying the existing basis matrices to counterfactual labs values
+
+
+diff(lag) + 1
+tsModel::Lag(basisvar[,1],)
+seqlag(lag1)
+analysis_df$retail_and_recreation_percent_change_from_baseline %>% 
+attributes(retail_basis)$dim
+
+attributes(retail_basis)$lag
+tsModel::Lag(basisvar[, v], seqlag(lag1), 
+                         group = group)
+
+
+tsModel::Lag(analysis_df$retail_and_recreation_percent_change_from_baseline, 60, 
+             group = analysis_df$metro_state_county)
+
+## one basis
+onebasis(analysis_df$retail_and_recreation_percent_change_from_baseline, fun = 'cr', df = 4)
+
+
+
+# functions
+for (v in seq(length = ncol(basisvar))) {
+  
+  if (dim[2] == 1L) {
+    mat <- as.matrix(tsModel::Lag(basisvar[, v], seqlag(lag1), 
+                         group = group))
+  }
+  else mat <- matrix(basisvar[, v], ncol = diff(lag) + 
+                       1)
+  for (l in seq(length = ncol(basislag))) {
+
+    crossbasis[, ncol(basislag) * (v - 1) + l] <- mat %*% 
+      (basislag[, l])
+  }
+}
+
+mat
+seqlag(lag, by = 1)
+
+lag <- 60
+
+seqlag
+
+seq(from = 0, to = 60)
+for (v in seq(length = ncol(basisvar))) {
+  print(v)
+}
+seqlag(mklag(60))
+
+mklag <- 
+  function(lag) {
+    #
+    ################################################################################
+    #
+    #  lag MUST BE A POSITIVE INTEGER VECTOR 
+    if(any(!is.numeric(lag))||length(lag)>2) 
+      stop("'lag' must a integer vector or length 2 or 1")
+    if(length(lag)==1L) lag <- if(lag<0L) c(lag,0L) else c(0L,lag)
+    if(diff(lag)<0L) stop("lag[1] must be <= lag[2]")
+    return(round(lag[1L:2L]))
+  }
+
+mklag(60)
+
+retail_basis
+mat <- as.matrix(tsModel::Lag(basisvar[, 1], seqlag(60)))
+
+### RYAN NOTE: crossbasis function calls onebasis, which itself produces a matrix
+# note this doesn't seem to recognize groups like crossbasis does?
+var_basis <- onebasis(analysis_df$retail_and_recreation_percent_change_from_baseline,
+         fun = 'cr', df = 4)
+# i think it's working off the 11239 by 4 matrix here:
+dim(var_basis)
+# but I think  we can use the existing matrix from one basis to apply the transformation
+# to the counterfactual observatiosns as they are the same as the ones produced in the
+# crossbasis; see below
+all.equal(attributes(var_basis)$S, # onebasis matrix
+          basisvar) # crossbasis matrix
+
+# we should be able to apply these individual basis matrices already learned from the observed
+# data to counterfactual data. 
+
+
+
+## End of Ryan trying to figure out stuff -----
+
 
 # 1. Fit GAM --------------------------------------------------------------
 
@@ -91,6 +241,35 @@ dlnm.main.gam_multimob3 <- gam(
   family="quasipoisson",
   method="REML"
 )
+
+summary(dlnm.main.gam_multimob3)
+
+test <- predict(dlnm.main.gam_multimob3, type = 'response')
+
+summary(test)
+
+glimpse(analysis_df)
+
+pred_df <- analysis_df %>% 
+  filter(time_since_first_death >= 0) %>% 
+  filter(!is.na(daily_deaths) & !is.na(parks_percent_change_from_baseline) &
+         !is.na(retail_and_recreation_percent_change_from_baseline))
+
+
+pred_df$pred_deaths <- predict(dlnm.main.gam_multimob3, type = 'response')
+
+
+ggplot() +
+  geom_line(
+    data = pred_df, 
+    aes(x=time_since_first_death, y = (daily_deaths/population_v051) * 100000, group = fips),
+    color = 'black') +
+  geom_line(
+    data = pred_df, 
+    aes(x=time_since_first_death, y = (pred_deaths/population_v051) * 100000, group = fips),
+    color = 'blue'
+  ) +
+  facet_wrap(~metro_area)
 
 # Before saving final, add same results from main GAM to list for plots
 original <- plot(dlnm.main.gam, pages=1, residuals=TRUE, seWithMean = TRUE)
