@@ -93,6 +93,122 @@ dlnm.main.gam_multimob3 <- gam(
 
 summary(dlnm.main.gam_multimob3)
 
+# This function assumes we are changing only the variable `retail_and_recreation_percent_change_from_baseline`
+set_cf <- function(mod, config, df, mobility_basis, cf_mobility){
+  
+  ret_var_knots <- attributes(mobility_basis)$argvar$knots
+  ret_lag_knots <- attributes(mobility_basis)$arglag$knots
+  
+  # repeat analysis df and make counterfactual
+  pred_df <- df
+  
+  pred_df$retail_and_recreation_percent_change_from_baseline <- cf_mobility
+  
+  # make countnerfactual basis where all mobility is set to -50 using known knots
+  counter_fact_basis <- crossbasis(
+    pred_df$retail_and_recreation_percent_change_from_baseline,
+    lag = config$max_lag,
+    argvar = list(fun='cr', knots=ret_var_knots), # instead of dfs; use the knots argument
+    arglag = list(fun='cr', knots=ret_lag_knots), # instead of dfs; use the knots argument
+    group = pred_df$metro_state_county # makes sure I lag appropriately by metro/county
+  )
+  
+  # new data for prediction
+  dim(counter_fact_basis[complete.cases(counter_fact_basis), ])
+  
+  # Getting out the predicted daily deaths using the observed data
+  # pred using observed data
+  pred_deaths <- predict(
+    mod, 
+    type = 'response'
+  )
+  
+  # pulling out the data the model fit; this was easier than only selecting certain
+  # columns from the analysis_df
+  new_mat <- mod$model
+  
+  # replace observed retail mobility with counterfactual; mgcv treats the lagged
+  # matrcies we use as a single column/element, so we can use replace the 
+  # second column with the counterfactual matrix
+  new_mat[,2] <- counter_fact_basis[complete.cases(counter_fact_basis), ]
+  
+  # make new predictions under counterfactual scenario
+  cf_deaths <- predict(
+    mod, 
+    newdata = new_mat, 
+    type = 'response'
+  )
+  
+  # For examining and plotting, save a df object:
+  plot_df <- pred_df %>% filter(time_since_first_death >= 0)
+  
+  plot_df$pred_deaths <- pred_deaths
+  plot_df$cf_deaths <- cf_deaths
+  
+  return(plot_df)
+  
+}
+
+make_cfplot <- function(df, location, cf_mobility){
+  
+  # NOTE location should be metro_state_county
+  
+  dat <- df %>%
+    filter(
+      metro_state_county == location
+    )
+  
+  colname <- paste('Counterfactual', cf_mobility, sep=" ")
+  
+  plot <- ggplot() +
+    geom_point(data = dat, aes(x=time_since_first_death, y = daily_deaths, color='Observed')) +
+    geom_line(
+      data = dat, 
+      aes(
+        x=time_since_first_death, 
+        y = cf_deaths, 
+        color = 'Counterfactual')
+    ) +
+    geom_line(
+      data = dat, 
+      aes(
+        x=time_since_first_death, 
+        y = pred_deaths, 
+        color = 'Predicted')
+    ) +
+    scale_color_manual(
+      values = c('Counterfactual' = 'blue',
+                 'Predicted' = 'red',
+                 'Observed' = 'black')
+    ) +
+    theme_classic()
+  
+  return(plot)
+}
+
+cf_50 <- set_cf(dlnm.main.gam_multimob3, config, analysis_df, retail_basis, -50)
+A <- make_cfplot(cf_50, 'New York City, New York County, NY', -50) +
+  ggtitle("Counterfactual -50")
+
+cf_neg25 <- set_cf(dlnm.main.gam_multimob3, config, analysis_df, retail_basis, -25)
+B <- make_cfplot(cf_neg25, 'New York City, New York County, NY', -25) +
+  ggtitle("Counterfactual -25")
+
+cf_neg10 <- set_cf(dlnm.main.gam_multimob3, config, analysis_df, retail_basis, -10)
+C <- make_cfplot(cf_neg10, 'New York City, New York County, NY', -10) +
+  ggtitle("Counterfactual -10")
+
+cf_0 <- set_cf(dlnm.main.gam_multimob3, config, analysis_df, retail_basis, 0)
+D <- make_cfplot(cf_0, 'New York City, New York County, NY', 0) +
+  ggtitle("Counterfactual 0")
+
+library(cowplot)
+plot_grid(A, B, C, D, ncol=1)
+
+
+# Keep Ryan's original CF code here ---------------------------------------
+
+
 ## We can use the knots of the cubic splines identifed above to apply the
 ## same spline transformation to new data so we don't run in to the issue
 ## of trying to identify new knots from a vector of a single value (e.g. -50)
@@ -104,7 +220,7 @@ ret_lag_knots <- attributes(retail_basis)$arglag$knots
 # repeat analysis df and make counterfactual
 pred_df <- analysis_df
 
-pred_df$retail_and_recreation_percent_change_from_baseline <- -50
+pred_df$retail_and_recreation_percent_change_from_baseline <- -10
 
 # make countnerfactual basis where all mobility is set to -50 using known knots
 counter_fact_basis <- crossbasis(
@@ -140,7 +256,7 @@ counterfact_50_deaths <- predict(
   dlnm.main.gam_multimob3, 
   newdata = new_mat, 
   type = 'response'
-  )
+)
 
 ## try plotting; need to start at timei since first death >= 0 to avoid missing
 plot_df <- pred_df %>% filter(time_since_first_death >= 0)
@@ -158,26 +274,27 @@ nyc_1 <- analysis_df %>%
 nyc <- plot_df %>% 
   filter(
     metro_state_county == 'New York City, New York County, NY'
-    )
+  )
 
 nyc[, c('daily_deaths', 'cf_50_deaths')]
 
 # mobility
 ggplot() +
   geom_point(data = nyc_1, 
-    aes(x=time_since_first_death, 
-        y = retail_and_recreation_percent_change_from_baseline))
+             aes(x=time_since_first_death, 
+                 y = retail_and_recreation_percent_change_from_baseline))
 
 # observed deaths, predicted, and counterfactual if mobility was always -50
 ggplot() +
-  geom_point(data = nyc, aes(x=time_since_first_death, y = daily_deaths)) +
+  geom_point(data = nyc, aes(x=time_since_first_death, y = daily_deaths, color='Observed')) +
+  #geom_line(data = nyc, aes(x=time_since_first_death, y = daily_deaths, color='Observed')) +
   geom_line(
     data = nyc, 
     aes(
       x=time_since_first_death, 
       y = cf_50_deaths, 
-      color = 'Counterfactual -50')
-    ) +
+      color = 'Counterfactual -10')
+  ) +
   geom_line(
     data = nyc, 
     aes(
@@ -186,8 +303,9 @@ ggplot() +
       color = 'Predicted')
   ) +
   scale_color_manual(
-    values = c('Counterfactual -50' = 'blue',
-               'Predicted' = 'red')
+    values = c('Counterfactual -10' = 'blue',
+               'Predicted' = 'red',
+               'Observed' = 'black')
   ) +
   theme_classic()
 
@@ -210,10 +328,10 @@ ggplot() +
       y = retail_and_recreation_percent_change_from_baseline,
       group = metro_state_county,
       color = metro_state_county)
-    ) +
+  ) +
   facet_wrap(~metro_area) +
   theme_classic()
-  
+
 # observed over counterfactual deaths rate per million
 ggplot() +
   # dots are observed
@@ -233,7 +351,8 @@ ggplot() +
       x = time_since_first_death,
       y = (cf_50_deaths/population_v051)*1000000,
       group = metro_state_county,
-      color = metro_state_county),
+      color = metro_state_county,
+      linetype = 'Counterfactual -50'),
     size = 1
   ) +
   # dashed is predicted without any changes to data
@@ -243,11 +362,13 @@ ggplot() +
       x = time_since_first_death,
       y = (pred_deaths/population_v051)*1000000,
       group = metro_state_county,
-      color = metro_state_county),
-    linetype = 'dashed'
+      color = metro_state_county,
+      linetype = 'Predicted')
   ) +
-  facet_wrap(~metro_area) +
-  theme_classic()
-
-
+  scale_linetype_manual(
+    values = c('Counterfactual -50' = 'solid',
+               'Predicted' = 'dashed')
+  ) +
+  facet_wrap(~metro_state_county) +
+  theme_classic() 
 
