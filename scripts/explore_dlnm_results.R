@@ -93,6 +93,9 @@ dlnm.main.gam_multimob3 <- gam(
 
 summary(dlnm.main.gam_multimob3)
 
+
+# Functions to produce & plot counterfactuals -----------------------------
+
 # This function assumes we are changing only the variable `retail_and_recreation_percent_change_from_baseline`
 set_cf <- function(mod, config, df, mobility_basis, cf_mobility){
   
@@ -152,36 +155,71 @@ set_cf <- function(mod, config, df, mobility_basis, cf_mobility){
 make_cfplot <- function(df, location, cf_mobility){
   
   # NOTE location should be metro_state_county
-  
-  dat <- df %>%
-    filter(
-      metro_state_county == location
-    )
-  
-  colname <- paste('Counterfactual', cf_mobility, sep=" ")
-  
-  plot <- ggplot() +
-    geom_point(data = dat, aes(x=time_since_first_death, y = daily_deaths, color='Observed')) +
-    geom_line(
-      data = dat, 
-      aes(
-        x=time_since_first_death, 
-        y = cf_deaths, 
-        color = 'Counterfactual')
-    ) +
-    geom_line(
-      data = dat, 
-      aes(
-        x=time_since_first_death, 
-        y = pred_deaths, 
-        color = 'Predicted')
-    ) +
-    scale_color_manual(
-      values = c('Counterfactual' = 'blue',
-                 'Predicted' = 'red',
-                 'Observed' = 'black')
-    ) +
-    theme_classic()
+  if(is.null(location)){
+    dat <- df
+    
+    plot <- ggplot() +
+      geom_point(data = dat, aes(x=time_since_first_death, y = daily_deaths, color='Observed'), alpha=0.3) +
+      geom_smooth(data = dat, aes(x=time_since_first_death, y = daily_deaths, color='Observed'), size=1) +
+      geom_line(
+        data = dat, 
+        aes(
+          x=time_since_first_death, 
+          y = cf_deaths, 
+          color = 'Counterfactual',
+          group=metro_state_county),
+        linetype="dashed"
+      ) +
+      geom_smooth(data = dat, aes(x=time_since_first_death, y = cf_deaths, color='Counterfactual'), size=1) +
+      geom_line(
+        data = dat, 
+        aes(
+          x=time_since_first_death, 
+          y = pred_deaths, 
+          color = 'Predicted',
+          group=metro_state_county),
+        linetype="dotted"
+      ) +
+      geom_smooth(data = dat, aes(x=time_since_first_death, y = cf_deaths, color='Predicted'), size=1) +
+      scale_color_manual(
+        values = c('Counterfactual' = 'blue',
+                   'Predicted' = 'red',
+                   'Observed' = 'black')
+      ) +
+      theme_classic() 
+    
+    
+  } else{
+    dat <- df %>%
+      filter(
+        metro_state_county == location
+      )
+    
+    colname <- paste('Counterfactual', cf_mobility, sep=" ")
+    
+    plot <- ggplot() +
+      geom_point(data = dat, aes(x=time_since_first_death, y = daily_deaths, color='Observed')) +
+      geom_line(
+        data = dat, 
+        aes(
+          x=time_since_first_death, 
+          y = cf_deaths, 
+          color = 'Counterfactual')
+      ) +
+      geom_line(
+        data = dat, 
+        aes(
+          x=time_since_first_death, 
+          y = pred_deaths, 
+          color = 'Predicted')
+      ) +
+      scale_color_manual(
+        values = c('Counterfactual' = 'blue',
+                   'Predicted' = 'red',
+                   'Observed' = 'black')
+      ) +
+      theme_classic()
+  }
   
   return(plot)
 }
@@ -202,9 +240,39 @@ cf_0 <- set_cf(dlnm.main.gam_multimob3, config, analysis_df, retail_basis, 0)
 D <- make_cfplot(cf_0, 'New York City, New York County, NY', 0) +
   ggtitle("Counterfactual 0")
 
-library(cowplot)
-plot_grid(A, B, C, D, ncol=1)
+cf_neg <- set_cf(dlnm.main.gam_multimob3, config, analysis_df, retail_basis, 10)
+E <- make_cfplot(cf_10, 'New York City, New York County, NY', 10) +
+  ggtitle("Counterfactual 10")
 
+library(cowplot)
+plot_grid(A, B, C, D, E, ncol=1)
+
+# Do for Chicago Cook County
+A_Cook <- make_cfplot(cf_50, 'Chicago, Cook County, IL', -50) +
+  ggtitle("Counterfactual -50")
+B_Cook <- make_cfplot(cf_neg25, 'Chicago, Cook County, IL', -25) +
+  ggtitle("Counterfactual -25")
+C_Cook <- make_cfplot(cf_neg10, 'Chicago, Cook County, IL', -10) +
+  ggtitle("Counterfactual -10")
+D_Cook <- make_cfplot(cf_0, 'Chicago, Cook County, IL', 0) +
+  ggtitle("Counterfactual 0")
+
+plot_grid(A_Cook, B_Cook, C_Cook, D_Cook, ncol=1)
+
+
+# What does the dlnm look like? -------------------------------------------
+
+dlnm_pred_retail <- crosspred(
+  retail_basis,
+  dlnm.main.gam_multimob3,
+  at=10:-80,
+  by=1,
+  bylag=1,
+  ci.level = 0.95,
+  cen=config$ref_lag
+)
+
+plot(dlnm_pred_retail)
 
 # Keep Ryan's original CF code here ---------------------------------------
 
