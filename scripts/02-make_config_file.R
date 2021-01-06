@@ -15,7 +15,7 @@ library(yaml)
 
 # setting end date to '2020-12-06' for updates
 
-end_date <- '2020-12-06'
+end_date <- '2020-12-31'
 ####
 # Commented out code to use last date of google mobility as end date for paper 
 # taking last date mobility is available
