@@ -33,7 +33,7 @@ study_window <- list(
 )
 
 # add maximum lag
-max_lag <- 90
+max_lag <- 60
 
 # add reference lag for mobility
 ref_lag <- -20
