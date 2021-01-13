@@ -33,10 +33,10 @@ study_window <- list(
 )
 
 # add maximum lag
-max_lag <- 60
+max_lag <- 90
 
 # add reference lag for mobility
-ref_lag <- -25
+ref_lag <- -20
 
 # Metropolitan counties of interest --------------------------------------------
 # study fips 
