@@ -60,6 +60,17 @@ study_fips <- as.character(
     "48141", # el paso
     # arizona
     "04013", # phoenix
+    # minneapolis, minnesota
+    "27053", # hennepin
+    "27123", # ramsey 
+    "27037", # dakota
+    # salt lake city, utah
+    "49035", # slc county
+    "49049", # provo
+    "49011", # davis
+    # nashville, tennessee
+    "47037", # davidson
+    "47051", # rutherford
     # florida
     "12011", # ft. lauderdale broward 
     "12086", # miami-dade

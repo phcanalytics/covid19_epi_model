@@ -41,7 +41,10 @@ state_county_fips <- read_csv('./data/source_data/county_fips.csv') %>%
       fips %in% c("06001","06075","06081","06085") ~ "San Francisco",
       fips %in% c("12011","12086","12099") ~ "Miami", 
       fips %in% c("12057", "12103", "12105", "12095") ~ "Tampa-Orlando",
-      fips %in% c("12031") ~ "Jacksonville"
+      fips %in% c("12031") ~ "Jacksonville",
+      fips %in% c("27053", "27123", "27037") ~ "Minneapolis",
+      fips %in% c("49035", "49049", "49011") ~ "Salt Lake City",
+      fips %in% c("47037", "47051") ~ "Nashville"
     )
   ) %>%
   mutate(
