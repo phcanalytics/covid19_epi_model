@@ -42,9 +42,9 @@ state_county_fips <- read_csv('./data/source_data/county_fips.csv') %>%
       fips %in% c("12011","12086","12099") ~ "Miami", 
       fips %in% c("12057", "12103", "12105", "12095") ~ "Tampa-Orlando",
       fips %in% c("12031") ~ "Jacksonville",
-      fips %in% c("27053", "27123", "27037") ~ "Minneapolis",
+      #fips %in% c("27053", "27123", "27037") ~ "Minneapolis",
       fips %in% c("49035", "49049", "49011") ~ "Salt Lake City",
-      fips %in% c("47037", "47051") ~ "Nashville"
+      fips %in% c("47037", "47149") ~ "Nashville"
     )
   ) %>%
   mutate(
@@ -62,7 +62,9 @@ rwj_nyt <- master_ts %>%
   # filter to study counties
   filter(fips %in% config$study_fips) %>% 
   # keep only variables we want to look at in the pca
-  select(fips, config$pca_variables$vars) %>% 
+  select(fips, config$pca_variables$vars) %>%
+  # missing data in free lunch
+  select(-children_eligible_free_lunch_v065) %>%
   # single observation
   group_by(fips) %>%
   slice(1) %>% 

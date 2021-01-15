@@ -61,16 +61,17 @@ study_fips <- as.character(
     # arizona
     "04013", # phoenix
     # minneapolis, minnesota
-    "27053", # hennepin
-    "27123", # ramsey 
-    "27037", # dakota
+    # commenting out MN counties because they don't have RWJ data
+    # "27053", # hennepin
+    # "27123", # ramsey 
+    # "27037", # dakota
     # salt lake city, utah
     "49035", # slc county
     "49049", # provo
     "49011", # davis
     # nashville, tennessee
     "47037", # davidson
-    "47051", # rutherford
+    "47149", # rutherford
     # florida
     "12011", # ft. lauderdale broward 
     "12086", # miami-dade
