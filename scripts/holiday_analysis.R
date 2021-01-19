@@ -4,9 +4,10 @@
 library(tidyverse)
 library(mgcv) # for gam 
 library(dlnm)
-library(foreach)
-library(doParallel)
-library(parallel)
+library(wesanderson)
+library(yaml)
+library(cowplot)
+library(ggplot2)
 
 # Setup --------------------------------------------------------
 
@@ -30,7 +31,10 @@ analysis_df <- read_csv('./data/05-analysis_df.csv') %>%
 analysis_df_sub <- analysis_df %>%
   filter(metro_area!="Los Angeles") %>%
   filter(county!="Harris County") %>%
+  # filter(county!="El Paso County") %>%
+  filter(date!="2020-11-13") %>% # try
   filter(date!="2020-11-26") %>%
+  filter(date!="2020-12-21") %>%
   #filter(date!="2020-08-06") %>% # abnormal day for NYC
   filter(date!="2020-12-25") %>%
   #filter(date!="2020-07-04") %>% # July 4th holiday
@@ -105,11 +109,11 @@ make_cumulative_slices <- function(crosspred){
 p_mob <- ggplot() +
   geom_line(data=analysis_df_sub %>%
               filter(metro_area!="Los Angeles") %>%
-         left_join(data.frame(state=state.name,region=state.region), by="state") %>%
-         group_by(region, date) %>%
-         summarise(daily_cases=sum(daily_cases),
-                   avg_retail=mean(retail_and_recreation_percent_change_from_baseline)), 
-       aes(date, avg_retail, col=region), alpha=0.6) + 
+              left_join(data.frame(state=state.name,region=state.region), by="state") %>%
+              group_by(region, date) %>%
+              summarise(daily_cases=sum(daily_cases),
+                        avg_retail=mean(retail_and_recreation_percent_change_from_baseline)), 
+            aes(date, avg_retail, col=region), alpha=0.6) + 
   geom_line(
     data=analysis_df_sub %>%
       left_join(data.frame(state=state.name,region=state.region), by="state"),
@@ -143,13 +147,13 @@ p_cases <-
 
 p_deaths <- 
   ggplot() +
-  geom_line(data=analysis_df_sub %>%
-              filter(metro_area!="Los Angeles") %>%
-              left_join(data.frame(state=state.name,region=state.region), by="state") %>%
-              group_by(region, date) %>%
-              summarise(daily_deaths=sum(daily_deaths),
-                        avg_retail=mean(retail_and_recreation_percent_change_from_baseline)), 
-            aes(date, daily_deaths, col=region), alpha=0.6) + 
+  # geom_line(data=analysis_df_sub %>%
+  #             filter(metro_area!="Los Angeles") %>%
+  #             left_join(data.frame(state=state.name,region=state.region), by="state") %>%
+  #             group_by(region, date) %>%
+  #             summarise(daily_deaths=sum(daily_deaths),
+  #                       avg_retail=mean(retail_and_recreation_percent_change_from_baseline)),
+  #           aes(date, daily_deaths, col=region), alpha=0.6) +
   geom_line(
     data=analysis_df_sub %>%
       left_join(data.frame(state=state.name,region=state.region), by="state"),
@@ -250,12 +254,12 @@ deaths_gam_time <- proc.time()-ptm.deaths
 dlnm_pred_retail <- crosspred(
   retail_basis,
   dlnm.main.gam_multimob3,
-  at=10:-80,
+  at=10:-50,
   by=1,
   bylag=1,
   ci.level =0.95,
   cen= -20 #,  #config$ref_lag,
- # cumul=TRUE
+  # cumul=TRUE
 )
 
 plot(dlnm_pred_retail)
@@ -282,13 +286,14 @@ p_deaths <- ggplot(
   # subset to certain mobilities
   data = rbind(df_deaths_retail %>% mutate(type="retail"),df_deaths_parks %>% mutate(type="parks")) %>% 
     filter(
-      #mobility %in% c("-40", "-20", "-10", "0",  "50", "100")
-      mobility %in% c("-80","-70","-60","-50", "-25","-10", "0", "5", '10', "50", "100", "200")
+      mobility %in% c("-30", "-20", "-10", "-5", "0",  "50", "100")
+      #mobility %in% c("-80","-70","-60","-50", "-25","-10", "0", "5", '10', "50", "100", "200")
     ) %>%
     mutate(
       # order mobility levels
       mobility = factor(
-        mobility, levels=c("-80","-70","-60","-50", "-25","-10", "0", "5", '10', "50", "100", "200") # c("-40", "-20", "-10", "0",  "50", "100")
+        mobility, levels=c("-30", "-20", "-10", "-5", "0",  "50", "100")
+        #mobility, levels=c("-80","-70","-60","-50", "-25","-10", "0", "5", '10', "50", "100", "200") # c("-40", "-20", "-10", "0",  "50", "100")
       )
     ),
   aes(x = lag, y = RR)
@@ -337,7 +342,7 @@ ggsave("results/dlnm_slices_deaths.png", p_deaths, device="png", width=8, height
 dlnm_pred_retail_cumul_try <- crosspred(
   retail_basis,
   dlnm.main.gam_multimob3,
-  at=10:-80,
+  at=10:-40,
   by=1,
   bylag=1,
   ci.level = 0.95,
@@ -361,7 +366,7 @@ data.frame(cumRR=dlnm_pred_retail_cumul_try$cumRRfit["-20",]) %>%
 dlnm_pred_parks_cumul <- crosspred(
   parks_basis,
   dlnm.main.gam_multimob3,
-  at=300:-50,
+  at=300:-20,
   by=1,
   bylag=1,
   ci.level = 0.95,
@@ -378,17 +383,19 @@ p_cumul_deaths <- ggplot(
   # subset to certain mobilities
   data = rbind(df_cumulative_deaths_retail %>% mutate(type="retail"),df_cumulative_parks_retail %>% mutate(type="parks")) %>% 
     filter(
-      mobility %in% # c("-40", "-20", "-10", "0",  "50", "100")
-        c("-80","-70","-60","-50","-40", "-30", "-20" ,"-10", "0", "5", '10', "50", "100") #, "200")
+      mobility %in% c("-30", "-20", "-10", "-5", "0",  "50", "100")
+      # c("-80","-70","-60","-50","-40", "-30", "-20" ,"-10", "0", "5", '10', "50", "100") #, "200")
     ) %>%
     mutate(
       # order mobility levels
       mobility = factor(
-        mobility, levels=c("-80","-70","-60","-50","-40", "-30", "-20" ,"-10", "0", "5", '10', "50", "100") #c("-40", "-20", "-10", "0",  "50", "100")
+        mobility, levels=
+          c("-30", "-20", "-10", "-5", "0",  "50", "100")
+        #c("-80","-70","-60","-50","-40", "-30", "-20" ,"-10", "0", "5", '10', "50", "100") #c("-40", "-20", "-10", "0",  "50", "100")
       )
     ), # %>%
-    # filter(case_when(type=="parks" ~ mobility%in%c("-10", "0", "50", "100"),
-    #                  TRUE ~ TRUE)),
+  # filter(case_when(type=="parks" ~ mobility%in%c("-10", "0", "50", "100"),
+  #                  TRUE ~ TRUE)),
   aes(x = lag, y = RR)
 ) +
   geom_line(
