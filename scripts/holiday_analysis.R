@@ -27,12 +27,15 @@ analysis_df <- read_csv('./data/05-analysis_df.csv') %>%
 # Excluding LA metro area- this is an outlier that merits its own analysis
 # Excluding Harris County
 # Excluding Thanksgiving/Christmas holidays
+south <- data.frame(state.name,state.region) %>% filter(state.region=="South")
 
 analysis_df_sub <- analysis_df %>%
   filter(metro_area!="Los Angeles") %>%
-  filter(county!="Harris County") %>%
-  # filter(county!="El Paso County") %>%
-  filter(date!="2020-11-13") %>% # try
+  #filter(!state%in%south$state.name) %>%
+  # filter(county!="Harris County") %>%
+  #filter(county!="El Paso County") %>%
+  filter(date!="2020-09-21") %>% # Harris County data dump
+  filter(date!="2020-11-13") %>% # try - abnormal
   filter(date!="2020-11-26") %>%
   filter(date!="2020-12-21") %>%
   #filter(date!="2020-08-06") %>% # abnormal day for NYC
@@ -190,17 +193,7 @@ plot_grid(p_mob, p_cases, p_parks, p_deaths, ncol=2)
 dev.off()
 
 
-# Deaths ------------------------------------------------------------------
-
-
-#### Model the distributed lags of mobility across all counties, excluding LA, and excluding Thanksgiving and Christmas day specifically
-# analysis_df_sub$retail_and_recreation_percent_change_from_baseline[analysis_df_sub$date=="2020-11-26"] <- 
-#   tapply(analysis_df_sub$retail_and_recreation_percent_change_from_baseline[analysis_df_sub$date=="2020-11-27"],
-#        analysis_df_sub$retail_and_recreation_percent_change_from_baseline[analysis_df_sub$date=="2020-11-25"],fun=mean)
-# 
-# analysis_df_sub$retail_and_recreation_percent_change_from_baseline[analysis_df_sub$date=="2020-12-25"] <- 
-#   tapply(analysis_df_sub$retail_and_recreation_percent_change_from_baseline[analysis_df_sub$date=="2020-12-24"],
-#          analysis_df_sub$retail_and_recreation_percent_change_from_baseline[analysis_df_sub$date=="2020-12-26"],fun=mean)
+# Lag basis ---------------------------------------------------------------
 
 # Create the basis 
 retail_basis <- crossbasis(
@@ -225,6 +218,19 @@ parks_basis <- crossbasis(
 
 # penalize the crossbasis splines
 parksPen <- cbPen(parks_basis) 
+
+
+# Deaths ------------------------------------------------------------------
+
+
+#### Model the distributed lags of mobility across all counties, excluding LA, and excluding Thanksgiving and Christmas day specifically
+# analysis_df_sub$retail_and_recreation_percent_change_from_baseline[analysis_df_sub$date=="2020-11-26"] <- 
+#   tapply(analysis_df_sub$retail_and_recreation_percent_change_from_baseline[analysis_df_sub$date=="2020-11-27"],
+#        analysis_df_sub$retail_and_recreation_percent_change_from_baseline[analysis_df_sub$date=="2020-11-25"],fun=mean)
+# 
+# analysis_df_sub$retail_and_recreation_percent_change_from_baseline[analysis_df_sub$date=="2020-12-25"] <- 
+#   tapply(analysis_df_sub$retail_and_recreation_percent_change_from_baseline[analysis_df_sub$date=="2020-12-24"],
+#          analysis_df_sub$retail_and_recreation_percent_change_from_baseline[analysis_df_sub$date=="2020-12-26"],fun=mean)
 
 # Fit the GAM
 ptm.deaths <- proc.time()
@@ -500,12 +506,13 @@ p_cases <- ggplot(
   # subset to certain mobilities
   data = rbind(df_cases_retail %>% mutate(type="retail"),df_cases_parks %>% mutate(type="parks")) %>% 
     filter(
-      mobility %in% c("-40", "-20", "-10", "0",  "50", "100")
+      mobility %in% c("-40" ,"-30", "-20", "-10", "-5", "0",  "50", "100")
+      #mobility %in% c("-40", "-20", "-10", "0",  "50", "100")
     ) %>%
     mutate(
       # order mobility levels
       mobility = factor(
-        mobility, levels=c("-40", "-20", "-10", "0",  "50", "100")
+        mobility, levels=c("-40" ,"-30", "-20", "-10", "-5", "0",  "50", "100")
       )
     ),
   aes(x = lag, y = RR)
@@ -541,8 +548,8 @@ p_cases <- ggplot(
   #   size=guide_legend(title='Model')
   # ) +
   theme_classic() +
-  scale_x_continuous(expand=c(0,0), limits=c(0,30)) +
-  scale_y_continuous(expand=c(0,0), limits=c(0.6,1.25)) +
+  #scale_x_continuous(expand=c(0,0), limits=c(0,30)) +
+  #scale_y_continuous(expand=c(0,0), limits=c(0.6,1.25)) +
   theme(strip.background = element_blank()) +
   theme(legend.position = "bottom")+
   ggtitle("Cases")
@@ -594,12 +601,12 @@ p_cumul_cases <- ggplot(
   # subset to certain mobilities
   data = rbind(df_cumulative_cases_retail %>% mutate(type="retail"),df_cumulative_cases_parks %>% mutate(type="parks")) %>% 
     filter(
-      mobility %in% c("-40", "-20", "-10", "0",  "50", "100")
+      mobility %in% c("-40" ,"-30", "-20", "-10", "-5", "0",  "50", "100")
     ) %>%
     mutate(
       # order mobility levels
       mobility = factor(
-        mobility, levels=c("-40", "-20", "-10", "0",  "50", "100")
+        mobility, levels=c("-40" ,"-30", "-20", "-10", "-5", "0",  "50", "100")
       )
     ),
   aes(x = lag, y = RR)
