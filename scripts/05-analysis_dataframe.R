@@ -32,7 +32,7 @@ analysis_df <- master_ts %>%
   filter(fips %in% config$study_fips) %>% 
   left_join(pc_df, by = 'fips') %>% 
   # study window ends at date 2020-05-13; for reproducibility 
-  filter(date <= config$study_window$end_date) # %>% 
+  filter(date <= config$study_window$end_date) %>% 
   # impute early portion of time series using imputeTS function
   arrange(fips,date) %>%
   group_by(fips) %>%
