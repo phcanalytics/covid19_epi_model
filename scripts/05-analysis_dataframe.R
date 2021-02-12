@@ -32,23 +32,24 @@ analysis_df <- master_ts %>%
   filter(fips %in% config$study_fips) %>% 
   left_join(pc_df, by = 'fips') %>% 
   # study window ends at date 2020-05-13; for reproducibility 
-  filter(date <= config$study_window$end_date) %>% 
+  filter(date <= config$study_window$end_date) # %>% 
+# Do not impute early mobility data- not needed for Fall/Winter 2020 analysis
   # impute early portion of time series using imputeTS function
-  arrange(fips,date) %>%
-  group_by(fips) %>%
-  mutate_at(
-    vars(
-      retail_and_recreation_percent_change_from_baseline,
-      grocery_and_pharmacy_percent_change_from_baseline,
-      parks_percent_change_from_baseline,
-      transit_stations_percent_change_from_baseline,
-      workplaces_percent_change_from_baseline,
-      residential_percent_change_from_baseline
-    ),
-    list(
-      ~ imputeTS::na_ma(., k = 5, weighting = "linear")
-    )
-  ) 
+  # arrange(fips,date) %>%
+  # group_by(fips) %>%
+  # mutate_at(
+  #   vars(
+  #     retail_and_recreation_percent_change_from_baseline,
+  #     grocery_and_pharmacy_percent_change_from_baseline,
+  #     parks_percent_change_from_baseline,
+  #     transit_stations_percent_change_from_baseline,
+  #     workplaces_percent_change_from_baseline,
+  #     residential_percent_change_from_baseline
+  #   ),
+  #   list(
+  #     ~ imputeTS::na_ma(., k = 5, weighting = "linear")
+  #   )
+  # ) 
 
 # save study df
 write_csv(analysis_df, './data/05-analysis_df.csv')
